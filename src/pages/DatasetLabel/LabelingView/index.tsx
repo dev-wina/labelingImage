@@ -4,6 +4,7 @@ import { styled } from "~styles/themes"
 import useCreateLabel from "~hooks/useCreateLabel"
 import useData from "~hooks/useData"
 import useImage from '~hooks/useImage';
+import useImageSize from '~hooks/useImageSize';
 
 export interface ILabels {
     image?: string
@@ -34,7 +35,9 @@ function LabelingView(prop: ILabels) {
         modify({...data, ...{labels: list}})
     }
     
+    
     useImage(imageRef, image)
+    useImageSize(image)
     useCreateLabel(canvasRef, addLabel)
 
     return(

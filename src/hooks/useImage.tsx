@@ -1,4 +1,5 @@
 import { MutableRefObject, useEffect } from 'react'
+import useImageSize from './useImageSize'
 
 export default function useImage(ref: MutableRefObject<any>, image: any){
     useEffect(()=>{
@@ -14,8 +15,11 @@ export default function useImage(ref: MutableRefObject<any>, image: any){
         const img = new Image()
         img.src = image
         //화면에 정확히 적용되지 않음
-        img.onload = () => canvas.getContext('2d')?.drawImage(img, 0, 0, img.width*(canvas.height/img.height), img.height*(canvas.height/img.height))
-
+        img.onload = () => {
+            canvas.getContext('2d')?.drawImage(img, 0, 0, img.width*(canvas.height/img.height), img.height*(canvas.height/img.height))
+            useImageSize(img)
+        }
+        
 
         if (ref && ref.current) {
             ref.current.focus();
