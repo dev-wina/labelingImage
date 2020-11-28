@@ -21,6 +21,8 @@ function LabelingView(prop: ILabels) {
     const [ list, setList ] = useState<Label[]>([])
     const canvasRef = useRef<HTMLCanvasElement>()
     const imageRef = useRef<HTMLCanvasElement>()
+    const inputRef = useRef<HTMLInputElement>()
+    const [ isInputVisible, setInputVisibility ] = useState<boolean>(true)
 
     useEffect(() => {
         if (data) setList(data.labels)
@@ -35,14 +37,10 @@ function LabelingView(prop: ILabels) {
         modify({...data, ...{labels: list}})
     }
     
-    const inputText = () => {
-        return <SInput></SInput>
-    }
-    
     useImage(imageRef, image)
     useImageSize(image)
     useCreateLabel(canvasRef, addLabel)
-
+    
     return(
         <SLabelingView>
             <canvas width="970px" height="594px" style={{position:"absolute"}}
@@ -51,7 +49,14 @@ function LabelingView(prop: ILabels) {
             <canvas width="970px" height="594px" style={{position:"absolute"}}
                 ref={canvasRef}>
             </canvas>
-            <input className="classInput" type="text" name="class"  style={{backgroundColor:"red", position:"absolute"}}></input>
+            {
+                isInputVisible? 
+                <SInput>
+                    <input ref={inputRef} type="text" name="class" 
+                        style={{position:"absolute", width:"147px", height:"22px", left:"15px", top:"5px" }}/>
+                </SInput>
+                : null
+            }
         </SLabelingView>
 }
 
@@ -63,4 +68,16 @@ const SLabelingView = styled.div`
     display: grid;
     width:100%;
     height:100%;
+`
+
+const SInput = styled.div`
+    z-index: 2;
+    position:"absolute";
+    display: grid;
+    background-color: white;
+    border-color: #A1ACC4;
+    border-width:1px;
+    border-radius: 50px;
+    width: 177px;
+    height: 32px;
 `
