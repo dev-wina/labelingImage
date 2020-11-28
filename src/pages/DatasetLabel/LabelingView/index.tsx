@@ -51,10 +51,9 @@ function LabelingView(prop: ILabels) {
             </canvas>
             {
                 isInputVisible? 
-                <SInput>
-                    <input ref={inputRef} type="text" name="class" 
-                        style={{position:"absolute", width:"147px", height:"22px", left:"15px", top:"5px" }}/>
-                </SInput>
+                <SInputWrapper>
+                    <SInput ref={inputRef} type="text" name="class" />
+                </SInputWrapper>
                 : null
             }
         </SLabelingView>
@@ -70,14 +69,22 @@ const SLabelingView = styled.div`
     height:100%;
 `
 
-const SInput = styled.div`
+const SInputWrapper = styled.div`
     z-index: 2;
-    position:"absolute";
+    position: "absolute";
     display: grid;
-    background-color: white;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
     border-color: #A1ACC4;
-    border-width:1px;
+    border-width: 1px;
     border-radius: 50px;
     width: 177px;
     height: 32px;
+`
+
+const SInput = styled.div`
+    position: "absolute";
+    width: 147px;
+    height: 22px; 
+    left: 15px;
+    top: 5px;
 `

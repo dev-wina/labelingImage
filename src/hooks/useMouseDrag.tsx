@@ -18,12 +18,29 @@ export default function useMouseDrag(ref: MutableRefObject<any>){
     const [ end, setEnd ] = useState<Point>({x: 0, y: 0})
     const [ temp, setTemp ] = useState<Label>()
     const [ paintRectMode, setPaintRectMode ] = useState<PAINT_RECT_MODE>(PAINT_RECT_MODE.NONE)
-    
+    const [ list, setList ] = useState<Label[]>([])
     const mousePos = useMousePoint(ref).point
 
     const handleMouseDown = useCallback((e) => {
         setStart(mousePos)
         setPaintRectMode(PAINT_RECT_MODE.CREATE)
+        const canvas: HTMLCanvasElement = ref.current
+        const context = canvas.getContext('2d')
+        const _temp: Label = { 
+            name: (parseInt(list[list.length-1].name)+1).toString(),
+            position: {
+                x: start.x / 600,
+                y: start.y / 600
+            },
+            width: mousePos.x / 600 - start.x / 600,
+            height: mousePos.y / 600 - start.y / 600
+        }
+        setTemp(_temp)
+        setList([...list,_temp])
+        console.log("_temp",_temp)
+        if(context){
+            useDrawRect(ref, list)
+        }
     },[paintRectMode, mousePos, temp, start])
 
     const handleMouseMove = useCallback((e) => {
@@ -32,7 +49,8 @@ export default function useMouseDrag(ref: MutableRefObject<any>){
         if(paintRectMode == PAINT_RECT_MODE.CREATE){
             const canvas: HTMLCanvasElement = ref.current
             const context = canvas.getContext('2d')
-            const _temp: Label = { 
+            
+            list[list.length-1] = { 
                 name: "111",
                 position: {
                     x: start.x / 600,
@@ -41,10 +59,10 @@ export default function useMouseDrag(ref: MutableRefObject<any>){
                 width: mousePos.x / 600 - start.x / 600,
                 height: mousePos.y / 600 - start.y / 600
             }
-            setTemp(_temp)
-            console.log("_temp",_temp)
+            setTemp(list[list.length-1])
+            console.log("_temp",list[list.length-1])
             if(context){
-                useDrawRect(ref, [_temp])
+                useDrawRect(ref, list)
             }
         }
     },[paintRectMode, mousePos, temp, start])
@@ -64,15 +82,14 @@ export default function useMouseDrag(ref: MutableRefObject<any>){
     let input: HTMLInputElement
     const handleMouseUp = useCallback((e) => {
         setEnd(mousePos)
-
         input = document.createElement('input');
         input.type = 'text';
-        input.style.position = 'relative';
+        input.style.position = 'absolute';
         
         input.style.left = `${e.pageX}px`;
         input.style.top = `${e.pageY}px`;
 
-        alert(`${e.pageX}, ${e.pageY}`)
+        // alert(`${e.pageX}, ${e.pageY}`)
 
         input.onkeydown = handleEnter
 
@@ -93,10 +110,6 @@ export default function useMouseDrag(ref: MutableRefObject<any>){
     function handleEnter(e) {
         var keyCode = e.keyCode;
         if (keyCode === 13) {
-            // ref.current.getContext('2d').textBaseline = 'top';
-            // ref.current.getContext('2d').textAlign = 'left';
-            // ref.current.getContext('2d').font = "Noto Sans Display";
-            // ref.current.getContext('2d').fillText("txt", mousePos.x * 600 - 4, mousePos.y * 600 - 4);
             // TODO : 해당 rect의 class name에 내용 넣어주기
             document.body.removeChild(input);
         }
