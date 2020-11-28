@@ -29,6 +29,7 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
             }
             drawRect(context, temp)
             drawAnchor(context, temp)
+            drawCoordBox(context, temp)
         })  
     }
     
@@ -147,21 +148,17 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
     function drawCoordBox(context, rect: IRect){
         if(rect.selected == false) return
 
-        context.fillStyle="#5668D933"
-        context.strokeStyle = "#5668D9"
-        context.lineJoin = 'miter'
-        context.lineWidth = 1
-
-        context.beginPath()
-
-        context.moveTo(rect.lt.x * 600, rect.lt.y * 600);
-        context.lineTo(rect.rt.x * 600, rect.rt.y * 600);
-        context.lineTo(rect.rb.x * 600, rect.rb.y * 600);
-        context.lineTo(rect.lb.x * 600, rect.lb.y * 600);
-
-        context.closePath()
-
-        context.stroke()
-        context.fill()
+        context.fillStyle="#fff"
+        context.fillRect(rect.rb.x * 600 + 10, rect.rb.y * 600 + 5, 79, 56)
+        context.beginPath();
+        //context.font = fontSize + 'px ' + fontFamily;
+        //context.textAlign = textAlign;
+        //context.textBaseline = textBaseline;
+        context.fillStyle = "black";
+        context.fillText("Class",rect.rb.x * 600 + 20, rect.rb.y * 600 + 20)
+        context.fillText(`W ${Math.abs(rect.rt.x-rect.lt.x).toFixed(2)}m`,rect.rb.x * 600 + 20, rect.rb.y * 600 + 35)
+        context.fillText(`H ${Math.abs(rect.lb.y-rect.lt.y).toFixed(2)}m`,rect.rb.x * 600 + 20, rect.rb.y * 600 + 50)
+        context.stroke();
+        
     }
 }
