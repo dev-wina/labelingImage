@@ -8,7 +8,7 @@ import useImageSize from '~hooks/useImageSize';
 import { withProps } from '~styles/themed-components';
 import useMousePoint from '~hooks/useMousePoint';
 import { PAINT_RECT_MODE } from '~constant';
-import useDrawRect from '~hooks/useDrawRect';
+import useDrawRect, { IRect } from '~hooks/useDrawRect';
 
 export interface ILabels {
     image?: string
@@ -80,7 +80,6 @@ function LabelingView(prop: ILabels) {
             }
             setTemp(_temp)
             setList([...list,_temp])
-            console.log("_temp",_temp)
             if(context){
                 useDrawRect(canvasRef, list)
             }
@@ -105,7 +104,6 @@ function LabelingView(prop: ILabels) {
                 height: mousePos.y / 600 - start.y / 600
             }
             setTemp(list[list.length-1])
-            console.log("_temp",list[list.length-1])
             if(context){
                 useDrawRect(canvasRef, list)
             }
@@ -128,7 +126,7 @@ function LabelingView(prop: ILabels) {
         setEnd(mousePos)
         if(inputRef && inputRef.current){
             // TODO : SInputWrapper visibility true로 변경
-            setLefttop({left: mousePos.x, top: mousePos.y})
+            setLefttop({left: mousePos.x, top: start.y})
             inputRef.current.onkeydown = handleEnter
             inputRef.current.focus();
         }
