@@ -144,4 +144,24 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
          context.fillStyle = "#fff"
         context.fillRect(rect.rt.x * 600 - 4,rect.rt.y * 600 + ((rect.rb.y * 600 - rect.rt.y * 600) / 2) - 4, 8, 8)
     }
+    function drawCoordBox(context, rect: IRect){
+        if(rect.selected == false) return
+
+        context.fillStyle="#5668D933"
+        context.strokeStyle = "#5668D9"
+        context.lineJoin = 'miter'
+        context.lineWidth = 1
+
+        context.beginPath()
+
+        context.moveTo(rect.lt.x * 600, rect.lt.y * 600);
+        context.lineTo(rect.rt.x * 600, rect.rt.y * 600);
+        context.lineTo(rect.rb.x * 600, rect.rb.y * 600);
+        context.lineTo(rect.lb.x * 600, rect.lb.y * 600);
+
+        context.closePath()
+
+        context.stroke()
+        context.fill()
+    }
 }
