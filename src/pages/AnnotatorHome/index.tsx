@@ -8,27 +8,43 @@ function AnnotatorHome() {
     const { data } = useData()
     return (
         <SAnnotatorHome>
-            {
-                data.map(video => 
-                    <SVideoPreview key={video.id}>
-                        <Link to={`${PAGE_PATHS.DATASET_LABEL}/${video.id}`}>
-                            <SImg src={video.thumbnail} />
-                            <SImageText>{video.name}</SImageText>
-                        </Link>
+            <SHeader>Annotator Home</SHeader>
+            <SVideoList>
+                {
+                    data.map(video => 
+                        <SVideoPreview key={video.id}>
+                            <Link to={`${PAGE_PATHS.DATASET_LABEL}/${video.id}`}>
+                                <SImg src={video.thumbnail} />
+                                <SImageText>{video.name}</SImageText>
+                            </Link>
 
-                    </SVideoPreview>
-                    ) }
+                        </SVideoPreview>
+                    ) 
+                }
+            </SVideoList>
+            
         </SAnnotatorHome>
     )
 }
 
 export default AnnotatorHome
 
+const SHeader = styled.h1`
+
+`
 const SAnnotatorHome = styled.div`
+    width: 100%;
+    height: 100%;
+    display: grid;
+    flex-wrap: wrap;
+`
+
+const SVideoList = styled.div`
     width: 100%;
     height: 100%;
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 `
 
 const SVideoPreview = styled.div`
