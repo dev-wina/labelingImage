@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect } from 'react';
+import { MutableRefObject } from 'react';
 import { Label } from '~modules/data';
 
 export interface IRect{
