@@ -29,7 +29,7 @@ function Tools(props: ITools) {
         <STools>
             {
                 tools.map((tools, index) =>
-                    <SButton active={index === tool} onClick={() => setTool(tool === index ? -1 : index)}>
+                    <SButton key={index} active={index === tool} onClick={() => setTool(tool === index ? -1 : index)}>
                         <FontAwesomeIcon icon={tools.icon} />
                     </SButton>
                     )

@@ -35,6 +35,9 @@ function LabelingView(prop: ILabels) {
         modify({...data, ...{labels: list}})
     }
     
+    const inputText = () => {
+        return <SInput></SInput>
+    }
     
     useImage(imageRef, image)
     useImageSize(image)
@@ -48,7 +51,7 @@ function LabelingView(prop: ILabels) {
             <canvas width="970px" height="594px" style={{position:"absolute"}}
                 ref={canvasRef}>
             </canvas>
-            
+            <input className="classInput" type="text" name="class"  style={{backgroundColor:"red", position:"absolute"}}></input>
         </SLabelingView>
 }
 

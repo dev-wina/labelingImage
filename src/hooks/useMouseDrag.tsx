@@ -2,16 +2,9 @@ import { MutableRefObject, useCallback, useEffect, useState } from 'react'
 import { PAINT_RECT_MODE } from '~constant'
 import useMousePoint from "~hooks/useMousePoint"
 import { Label, Point } from "~modules/data"
-import useDrawRect from './useDrawRect'
+import useDrawRect, { IRect } from './useDrawRect'
 import get = Reflect.get
 
-interface IRect{
-    lt: {x: number, y: number}
-    rt: {x: number, y: number}
-    lb: {x: number, y: number}
-    rb: {x: number, y: number}
-    selected: boolean
-}
 export default function useMouseDrag(ref: MutableRefObject<any>){
     const tempRect: IRect = {
         lt: {x: 0, y: 0}, 
@@ -68,26 +61,65 @@ export default function useMouseDrag(ref: MutableRefObject<any>){
         return selected;
     }
 
-    const handleMouseUpAndLeave = useCallback((e) => {
+    let input: HTMLInputElement
+    const handleMouseUp = useCallback((e) => {
+        setEnd(mousePos)
+
+        input = document.createElement('input');
+        input.type = 'text';
+        input.style.position = 'relative';
+        
+        input.style.left = `${e.pageX}px`;
+        input.style.top = `${e.pageY}px`;
+
+        alert(`${e.pageX}, ${e.pageY}`)
+
+        input.onkeydown = handleEnter
+
+        document.body.appendChild(input);
+
+        input.focus();
+
+        setPaintRectMode(PAINT_RECT_MODE.NONE)
+    },[mousePos, ref])
+
+    const handleMouseLeave = useCallback((e) => {
         setEnd(mousePos)
         setPaintRectMode(PAINT_RECT_MODE.NONE)
     },[])
+
+    
+
+    function handleEnter(e) {
+        var keyCode = e.keyCode;
+        if (keyCode === 13) {
+            // ref.current.getContext('2d').textBaseline = 'top';
+            // ref.current.getContext('2d').textAlign = 'left';
+            // ref.current.getContext('2d').font = "Noto Sans Display";
+            // ref.current.getContext('2d').fillText("txt", mousePos.x * 600 - 4, mousePos.y * 600 - 4);
+            // TODO : 해당 rect의 class name에 내용 넣어주기
+            document.body.removeChild(input);
+        }
+    }
+
 
     useEffect(()=>{
         if (ref && ref.current) {
             ref.current.addEventListener("mousedown", handleMouseDown )
             ref.current.addEventListener("mousemove", handleMouseMove )
-            ref.current.addEventListener("mouseup", handleMouseUpAndLeave )
-            ref.current.addEventListener("mouseleave", handleMouseUpAndLeave )
+            ref.current.addEventListener("mouseup", handleMouseUp )
+            ref.current.addEventListener("mouseleave", handleMouseLeave )
+            ref.current.addEventListener("keypress", handleEnter )
         }
 
         return () => {
             ref.current.removeEventListener("mousedown", handleMouseDown )
             ref.current.removeEventListener("mousemove", handleMouseMove )
-            ref.current.removeEventListener("mouseup", handleMouseUpAndLeave )
-            ref.current.addEventListener("mouseleave", handleMouseUpAndLeave )
+            ref.current.removeEventListener("mouseup", handleMouseUp )
+            ref.current.addEventListener("mouseleave", handleMouseLeave )
+            ref.current.addEventListener("keypress", handleEnter )
         }
-    },[handleMouseDown, handleMouseMove, handleMouseUpAndLeave])
+    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave])
 
     return {
         start,
