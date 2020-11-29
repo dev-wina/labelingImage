@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "npx parcel build src/index.html --out-dir build/public",
-    "dev": "npx parcel -p 8085 src/index.html"
+    "start": "npx parcel -p 8085 src/index.html"
   },
   "dependencies": {
     "@babel/core": "^7.11.0",

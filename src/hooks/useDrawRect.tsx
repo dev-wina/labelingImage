@@ -2,16 +2,17 @@ import { MutableRefObject } from 'react';
 import { Label } from '~modules/data';
 
 export interface IRect{
-    lt: {x: number, y: number}, 
-    rt: {x: number, y: number},
-    lb: {x: number, y: number},
-    rb: {x: number, y: number},
+    class: string
+    lt: {x: number, y: number}
+    rt: {x: number, y: number}
+    lb: {x: number, y: number}
+    rb: {x: number, y: number}
     selected: boolean
 }
 
 const data: IRect[] = [
-        { lt: {x:0, y:0}, rt: {x:0.2, y:0}, lb: {x:0, y:0.2}, rb: {x:0.2, y:0.2}, selected: false},
-        { lt: {x:0, y:0}, rt: {x:0.9, y:0}, lb: {x:0, y:0.9}, rb: {x:0.9, y:0.9}, selected: false}
+        { lt: {x:0, y:0}, rt: {x:0.2, y:0}, lb: {x:0, y:0.2}, rb: {x:0.2, y:0.2}, selected: false, class: "Car"},
+        { lt: {x:0, y:0}, rt: {x:0.9, y:0}, lb: {x:0, y:0.9}, rb: {x:0.9, y:0.9}, selected: false, class: "Book"}
 ] // TODO : 삭제예정, 이미지에서의 비율  
 
 export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[]){
@@ -155,7 +156,7 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         //context.textAlign = textAlign;
         //context.textBaseline = textBaseline;
         context.fillStyle = "black";
-        context.fillText("Class",rect.rb.x * 600 + 20, rect.rb.y * 600 + 20)
+        context.fillText( rect.class?rect.class:"class" ,rect.rb.x * 600 + 20, rect.rb.y * 600 + 20)
         context.fillText(`W ${Math.abs(rect.rt.x-rect.lt.x).toFixed(2)}m`,rect.rb.x * 600 + 20, rect.rb.y * 600 + 35)
         context.fillText(`H ${Math.abs(rect.lb.y-rect.lt.y).toFixed(2)}m`,rect.rb.x * 600 + 20, rect.rb.y * 600 + 50)
         context.stroke();

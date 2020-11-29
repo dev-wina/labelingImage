@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Label, Point, Video } from "~modules/data";
 import { styled } from "~styles/themes"
-import useCreateLabel from "~hooks/useCreateLabel"
 import useData from "~hooks/useData"
 import useImage from '~hooks/useImage';
 import useImageSize from '~hooks/useImageSize';
@@ -18,6 +17,7 @@ export interface ILabels {
 export interface ISInput {
     left: number
     top: number
+    isVisible: boolean
 }
 
 function LabelingView(prop: ILabels) {
@@ -61,7 +61,7 @@ function LabelingView(prop: ILabels) {
     
   
 
-    const [ lefttop, setLefttop ]  = useState<ISInput>({ left: 100, top: 100 })
+    const [ lefttop, setLefttop ]  = useState<ISInput>({ left: 100, top: 100, isVisible: false })
     
 
     const handleMouseDown = useCallback((e) => {
@@ -125,8 +125,7 @@ function LabelingView(prop: ILabels) {
     const handleMouseUp = useCallback((e) => {
         setEnd(mousePos)
         if(inputRef && inputRef.current){
-            // TODO : SInputWrapper visibility true로 변경
-            setLefttop({left: mousePos.x, top: start.y})
+            setLefttop({left: mousePos.x, top: start.y, isVisible: true})
             inputRef.current.onkeydown = handleEnter
             inputRef.current.focus();
         }
@@ -139,13 +138,27 @@ function LabelingView(prop: ILabels) {
         setPaintRectMode(PAINT_RECT_MODE.NONE)
     },[])
 
-    function handleEnter(e) {
-        var keyCode = e.keyCode;
-        if (keyCode === 13) {
-            // TODO : SInputWrapper visibility false로 변경
-            // TODO : 해당 rect의 class name에 SInput의 text 넣어주기
+    const handleEnter = useCallback((e) => {
+         var keyCode = e.keyCode;
+        if (keyCode === 13 && inputRef && inputRef.current && temp) {
+            setLefttop({left: mousePos.x, top: start.y, isVisible: false})
+            // TODO : 해당 rect의 class name에 inputRef.current.value 넣어주기
+            
+            const _temp: Label = { 
+                name: inputRef.current.value,
+                position: {
+                    x: temp.position.x,
+                    y: temp.position.y
+                },
+                width: temp.width,
+                height: temp.height
+            }
+            setTemp(_temp)
+            
         }
-    }
+        setPaintRectMode(PAINT_RECT_MODE.NONE)
+    },[inputRef, lefttop,mousePos, canvasRef])
+
 
     useEffect(()=>{
         if (canvasRef && canvasRef.current) {
@@ -202,7 +215,7 @@ const SLabelingView = styled.div`
 const SInputWrapper = withProps<ISInput,HTMLInputElement>(styled.div)`
     z-index: 2;
     position: absolute;
-    display: grid;
+    display: ${props => props.isVisible? "grid" : "none"};
     background: #FFFFFF 0% 0% no-repeat padding-box;
     border-color: #A1ACC4;
     border-width: 1px;
