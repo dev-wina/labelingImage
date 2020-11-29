@@ -74,7 +74,8 @@ function LabelingView(prop: ILabels) {
         setLefttop({left: mousePos.x, top: start.y, isVisible: false})
         if(list.length === 0) setPaintRectMode(PAINT_RECT_MODE.CREATE)
         list.map((rect)=>{
-            if (   rect.position.lt.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.lt.x * 600 + 4 
+            if (   
+                rect.position.lt.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.lt.x * 600 + 4 
                 && rect.position.lt.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.lt.y * 600 + 4 
                 || rect.position.rt.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.rt.x * 600 + 4 
                 && rect.position.rt.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.rt.y * 600 + 4 
@@ -82,14 +83,23 @@ function LabelingView(prop: ILabels) {
                 && rect.position.lb.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.lb.y * 600 + 4 
                 || rect.position.rb.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.rb.x * 600 + 4 
                 && rect.position.rb.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.rb.y * 600 + 4 ) {
-                    setTargetRect(rect)
-                    rect.isSelected = true;
-                    setPaintRectMode(PAINT_RECT_MODE.RESIZE)
+
+                setTargetRect(rect)
+                rect.isSelected = true;
+                setPaintRectMode(PAINT_RECT_MODE.RESIZE)
             }
             // TODO : target의 anchor에 enter시
             //else if(rect){
             //  setPaintRectMode(PAINT_RECT_MODE.RESIZE)
             //}
+            else if(   
+                rect.position.lt.x * 600 < mousePos.x && mousePos.x < rect.position.rt.x * 600
+                && rect.position.lt.y * 600 < mousePos.y && mousePos.y < rect.position.lb.y * 600){
+                
+                setTargetRect(rect)
+                rect.isSelected = true;
+                setPaintRectMode(PAINT_RECT_MODE.MOVE)        
+            }
             else if(paintRectMode != PAINT_RECT_MODE.RESIZE){
                 setPaintRectMode(PAINT_RECT_MODE.CREATE)
             }
@@ -122,7 +132,6 @@ function LabelingView(prop: ILabels) {
             else if(paintRectMode === PAINT_RECT_MODE.RESIZE){
                 const canvas: HTMLCanvasElement = canvasRef.current
                 const context = canvas.getContext('2d')
-                console.log("리스트22222", list)
                 list.map((rect)=>{
                     if(rect === targetRect){
                         rect.position = {
@@ -135,7 +144,24 @@ function LabelingView(prop: ILabels) {
                     }
                 })
                 if(context){
-                    console.log("리스트33333", list)
+                    useDrawRect(canvasRef, list)
+                }
+            }
+            else if(paintRectMode === PAINT_RECT_MODE.MOVE){
+                const canvas: HTMLCanvasElement = canvasRef.current
+                const context = canvas.getContext('2d')
+                list.map((rect)=>{
+                    if(rect === targetRect){
+                        rect.position = {
+                                lt: { x: mousePos.x / 600, y: mousePos.y / 600},
+                                rt: { x: mousePos.x / 600 + rect.width, y: mousePos.y / 600 },
+                                lb: { x: mousePos.x / 600, y: mousePos.y / 600 + rect.height },
+                                rb: { x: mousePos.x / 600 + rect.width, y: mousePos.y / 600 + rect.height }
+                            }
+                        setTargetRect(rect)
+                    }
+                })
+                if(context){
                     useDrawRect(canvasRef, list)
                 }
             }
