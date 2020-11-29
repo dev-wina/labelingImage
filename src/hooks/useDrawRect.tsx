@@ -22,6 +22,7 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
         rectList.map((rect)=>{
             const temp: IRect = { 
+                class: rect.name,
                 lt: {x:rect.position.x, y:rect.position.y}, 
                 rt: {x:rect.position.x + rect.width, y:rect.position.y}, 
                 lb: {x:rect.position.x, y:rect.position.y + rect.height}, 

@@ -95,7 +95,7 @@ function LabelingView(prop: ILabels) {
             const context = canvas.getContext('2d')
             
             list[list.length-1] = { 
-                name: "111",
+                name: "class",
                 position: {
                     x: start.x / 600,
                     y: start.y / 600
@@ -129,7 +129,6 @@ function LabelingView(prop: ILabels) {
             inputRef.current.onkeydown = handleEnter
             inputRef.current.focus();
         }
-        
         setPaintRectMode(PAINT_RECT_MODE.NONE)
     },[mousePos, canvasRef, inputRef])
 
@@ -140,11 +139,10 @@ function LabelingView(prop: ILabels) {
 
     const handleEnter = useCallback((e) => {
          var keyCode = e.keyCode;
-        if (keyCode === 13 && inputRef && inputRef.current && temp) {
+        if (keyCode === 13 && inputRef && inputRef.current && temp && canvasRef && canvasRef.current) {
             setLefttop({left: mousePos.x, top: start.y, isVisible: false})
             // TODO : 해당 rect의 class name에 inputRef.current.value 넣어주기
-            
-            const _temp: Label = { 
+            list[list.length-1] = {  
                 name: inputRef.current.value,
                 position: {
                     x: temp.position.x,
@@ -153,8 +151,13 @@ function LabelingView(prop: ILabels) {
                 width: temp.width,
                 height: temp.height
             }
-            setTemp(_temp)
-            
+            setList(list)
+            const canvas: HTMLCanvasElement = canvasRef.current
+            const context = canvas.getContext('2d')
+            if(context){
+                useDrawRect(canvasRef, list)
+            }
+            inputRef.current.value = ""
         }
         setPaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, lefttop,mousePos, canvasRef])
