@@ -26,7 +26,6 @@ function LabelingView(prop: ILabels) {
         data
     } = prop;
     const { modify, findById } = useData()
-    
     const [ list, setList ] = useState<Label[]>([]) // TODO : labelList에 넘겨줘야함
     const canvasRef = useRef<HTMLCanvasElement>()
     const imageRef = useRef<HTMLCanvasElement>()
@@ -34,9 +33,24 @@ function LabelingView(prop: ILabels) {
     const [ isInputVisible, setInputVisibility ] = useState<boolean>(true)
     const [ start, setStart ] = useState<Point>({x: 0, y: 0})
     const [ end, setEnd ] = useState<Point>({x: 0, y: 0})
-    const [ temp, setTemp ] = useState<Label>()
+    const [ targetRect, setTargetRect ] = useState<Label>()
     const [ paintRectMode, setPaintRectMode ] = useState<PAINT_RECT_MODE>(PAINT_RECT_MODE.NONE)
     const mousePos = useMousePoint(canvasRef).point
+
+
+    const tempRect: Label = { 
+                className: "class",
+                position: {
+                    lt: { x: start.x / 600, y: start.y / 600 },
+                    rt: { x: mousePos.x / 600, y: start.y / 600 },
+                    lb: { x: start.x / 600, y: mousePos.y / 600 },
+                    rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
+                },
+                width: mousePos.x / 600 - start.x / 600,
+                height: mousePos.y / 600 - start.y / 600,
+                isSelected: true
+            }
+
 
     useEffect(() => {
         if (data) setList(data.labels)
@@ -58,69 +72,78 @@ function LabelingView(prop: ILabels) {
     const handleMouseDown = useCallback((e) => {
         setStart(mousePos)
         setLefttop({left: mousePos.x, top: start.y, isVisible: false})
-        // hitBox(e)
-        const _list = list.map((rect)=>{
-            
-        })
-        setPaintRectMode(PAINT_RECT_MODE.CREATE)
-        if(canvasRef && canvasRef.current){
-            const context = canvasRef.current.getContext('2d')
-            const _temp: Label = { 
-                className: "class",
-                position: {
-                    lt: { x: start.x / 600, y: start.y / 600 },
-                    rt: { x: mousePos.x / 600, y: start.y / 600 },
-                    lb: { x: start.x / 600, y: mousePos.y / 600 },
-                    rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
-                },
-                width: mousePos.x / 600 - start.x / 600,
-                height: mousePos.y / 600 - start.y / 600,
-                isSelected: true
+        if(list.length === 0) setPaintRectMode(PAINT_RECT_MODE.CREATE)
+        list.map((rect)=>{
+            if (   rect.position.lt.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.lt.x * 600 + 4 
+                && rect.position.lt.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.lt.y * 600 + 4 
+                || rect.position.rt.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.rt.x * 600 + 4 
+                && rect.position.rt.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.rt.y * 600 + 4 
+                || rect.position.lb.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.lb.x * 600 + 4 
+                && rect.position.lb.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.lb.y * 600 + 4 
+                || rect.position.rb.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.rb.x * 600 + 4 
+                && rect.position.rb.y * 600 - 4 < mousePos.y && mousePos.y < rect.position.rb.y * 600 + 4 ) {
+                    setTargetRect(rect)
+                    rect.isSelected = true;
+                    setPaintRectMode(PAINT_RECT_MODE.RESIZE)
             }
-            setTemp(_temp)
-            setList([...list,_temp])
+            // TODO : target의 anchor에 enter시
+            //else if(rect){
+            //  setPaintRectMode(PAINT_RECT_MODE.RESIZE)
+            //}
+            else if(paintRectMode != PAINT_RECT_MODE.RESIZE){
+                setPaintRectMode(PAINT_RECT_MODE.CREATE)
+            }
+        })
+        
+        if( PAINT_RECT_MODE.CREATE && canvasRef && canvasRef.current){
+            const context = canvasRef.current.getContext('2d')
+            setTargetRect(tempRect)
+            setList([...list,tempRect])
             if(context){
                 useDrawRect(canvasRef, list)
             }
         }
         
-    },[paintRectMode, mousePos, temp, start])
+    },[paintRectMode, mousePos, targetRect, start])
 
     const handleMouseMove = useCallback((e) => {
         e.preventDefault()
         e.stopPropagation()
-        if(paintRectMode == PAINT_RECT_MODE.CREATE && canvasRef && canvasRef.current){
-            const canvas: HTMLCanvasElement = canvasRef.current
-            const context = canvas.getContext('2d')
-            
-            list[list.length-1] = { 
-                className: "class",
-                position: {
-                    lt: { x: start.x / 600, y: start.y / 600 },
-                    rt: { x: mousePos.x / 600, y: start.y / 600 },
-                    lb: { x: start.x / 600, y: mousePos.y / 600 },
-                    rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
-                },
-                width: mousePos.x / 600 - start.x / 600,
-                height: mousePos.y / 600 - start.y / 600,
-                isSelected: true
+        if(canvasRef && canvasRef.current){
+            if(paintRectMode === PAINT_RECT_MODE.CREATE){
+                const canvas: HTMLCanvasElement = canvasRef.current
+                const context = canvas.getContext('2d')
+                list[list.length-1] = tempRect
+                setTargetRect(list[list.length-1])
+                if(context){
+                    useDrawRect(canvasRef, list)
+                }
             }
-            setTemp(list[list.length-1])
-            if(context){
-                useDrawRect(canvasRef, list)
+            else if(paintRectMode === PAINT_RECT_MODE.RESIZE){
+                const canvas: HTMLCanvasElement = canvasRef.current
+                const context = canvas.getContext('2d')
+                console.log("리스트22222", list)
+                list.map((rect)=>{
+                    if(rect === targetRect){
+                        rect.position = {
+                                lt: { x: rect.position.lt.x, y: rect.position.lt.y},
+                                rt: { x: mousePos.x / 600, y: rect.position.lt.y },
+                                lb: { x: rect.position.lt.x, y: mousePos.y / 600 },
+                                rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
+                            }
+                        setTargetRect(rect)
+                    }
+                })
+                if(context){
+                    console.log("리스트33333", list)
+                    useDrawRect(canvasRef, list)
+                }
             }
         }
-    },[paintRectMode, mousePos, temp, start])
+    },[paintRectMode, mousePos, start])
 
-    const hitBox = (e) => {
-        let selected = null;
-        list.map((rect)=>{
-            if (rect) {
-                dragTarget = rect;
-                rect.selected = true;
-            }
-        })
-        return selected;
+    const hitBox = () => {
+       
     }
 
     const handleMouseUp = useCallback((e) => {
@@ -140,7 +163,7 @@ function LabelingView(prop: ILabels) {
 
     const handleEnter = useCallback((e) => {
          var keyCode = e.keyCode;
-        if (keyCode === 13 && inputRef && inputRef.current && temp && canvasRef && canvasRef.current) {
+        if (keyCode === 13 && inputRef && inputRef.current && targetRect && canvasRef && canvasRef.current) {
             setLefttop({left: mousePos.x, top: start.y, isVisible: false})
             list[list.length-1].className = inputRef.current.value
             setList(list)
@@ -152,7 +175,7 @@ function LabelingView(prop: ILabels) {
             inputRef.current.value = ""
         }
         setPaintRectMode(PAINT_RECT_MODE.NONE)
-    },[inputRef, lefttop, mousePos, canvasRef, temp])
+    },[inputRef, lefttop, mousePos, canvasRef, targetRect])
 
 
     useEffect(()=>{
