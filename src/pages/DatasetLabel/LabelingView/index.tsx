@@ -7,7 +7,7 @@ import useImageSize from '~hooks/useImageSize';
 import { withProps } from '~styles/themed-components';
 import useMousePoint from '~hooks/useMousePoint';
 import { PAINT_RECT_MODE } from '~constant';
-import useDrawRect, { IRect } from '~hooks/useDrawRect';
+import useDrawRect, from '~hooks/useDrawRect';
 
 export interface ILabels {
     image?: string
@@ -26,16 +26,8 @@ function LabelingView(prop: ILabels) {
         data
     } = prop;
     const { modify, findById } = useData()
-
-    const tempRect: IRect = {
-        lt: {x: 0, y: 0}, 
-        rt: {x: 0, y: 0}, 
-        lb: {x: 0, y: 0}, 
-        rb: {x: 0, y:0}, 
-        selected: false
-    }
     
-    const [ list, setList ] = useState<Label[]>([])
+    const [ list, setList ] = useState<Label[]>([]) // TODO : labelList에 넘겨줘야함
     const canvasRef = useRef<HTMLCanvasElement>()
     const imageRef = useRef<HTMLCanvasElement>()
     const inputRef = useRef<HTMLInputElement>()
@@ -63,20 +55,27 @@ function LabelingView(prop: ILabels) {
 
     const [ lefttop, setLefttop ]  = useState<ISInput>({ left: 100, top: 100, isVisible: false })
     
-
     const handleMouseDown = useCallback((e) => {
         setStart(mousePos)
+        setLefttop({left: mousePos.x, top: start.y, isVisible: false})
+        // hitBox(e)
+        const _list = list.map((rect)=>{
+            
+        })
         setPaintRectMode(PAINT_RECT_MODE.CREATE)
         if(canvasRef && canvasRef.current){
             const context = canvasRef.current.getContext('2d')
             const _temp: Label = { 
-                name: list?`${(parseInt(list[list.length-1].name)+1)}`:"1",
+                className: "class",
                 position: {
-                    x: start.x / 600,
-                    y: start.y / 600
+                    lt: { x: start.x / 600, y: start.y / 600 },
+                    rt: { x: mousePos.x / 600, y: start.y / 600 },
+                    lb: { x: start.x / 600, y: mousePos.y / 600 },
+                    rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
                 },
                 width: mousePos.x / 600 - start.x / 600,
-                height: mousePos.y / 600 - start.y / 600
+                height: mousePos.y / 600 - start.y / 600,
+                isSelected: true
             }
             setTemp(_temp)
             setList([...list,_temp])
@@ -95,13 +94,16 @@ function LabelingView(prop: ILabels) {
             const context = canvas.getContext('2d')
             
             list[list.length-1] = { 
-                name: "class",
+                className: "class",
                 position: {
-                    x: start.x / 600,
-                    y: start.y / 600
+                    lt: { x: start.x / 600, y: start.y / 600 },
+                    rt: { x: mousePos.x / 600, y: start.y / 600 },
+                    lb: { x: start.x / 600, y: mousePos.y / 600 },
+                    rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
                 },
                 width: mousePos.x / 600 - start.x / 600,
-                height: mousePos.y / 600 - start.y / 600
+                height: mousePos.y / 600 - start.y / 600,
+                isSelected: true
             }
             setTemp(list[list.length-1])
             if(context){
@@ -110,14 +112,13 @@ function LabelingView(prop: ILabels) {
         }
     },[paintRectMode, mousePos, temp, start])
 
-    const hitBox = (x, y) => {
+    const hitBox = (e) => {
         let selected = null;
-        const rectList: IRect[] = []
-        rectList.map((rect)=>{
-            // if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) {
-            //     dragTarget = rect;
-            //     rect.selected = true;
-            // }
+        list.map((rect)=>{
+            if (rect) {
+                dragTarget = rect;
+                rect.selected = true;
+            }
         })
         return selected;
     }
@@ -141,16 +142,7 @@ function LabelingView(prop: ILabels) {
          var keyCode = e.keyCode;
         if (keyCode === 13 && inputRef && inputRef.current && temp && canvasRef && canvasRef.current) {
             setLefttop({left: mousePos.x, top: start.y, isVisible: false})
-            // TODO : 해당 rect의 class name에 inputRef.current.value 넣어주기
-            list[list.length-1] = {  
-                name: inputRef.current.value,
-                position: {
-                    x: temp.position.x,
-                    y: temp.position.y
-                },
-                width: temp.width,
-                height: temp.height
-            }
+            list[list.length-1].className = inputRef.current.value
             setList(list)
             const canvas: HTMLCanvasElement = canvasRef.current
             const context = canvas.getContext('2d')
@@ -160,7 +152,7 @@ function LabelingView(prop: ILabels) {
             inputRef.current.value = ""
         }
         setPaintRectMode(PAINT_RECT_MODE.NONE)
-    },[inputRef, lefttop,mousePos, canvasRef])
+    },[inputRef, lefttop, mousePos, canvasRef, temp])
 
 
     useEffect(()=>{
@@ -181,7 +173,7 @@ function LabelingView(prop: ILabels) {
                 canvasRef.current.addEventListener("keypress", handleEnter )
             }
         }
-    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave])
+    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleEnter])
 
     useImage(imageRef, image)
     useImageSize(image)
@@ -198,7 +190,7 @@ function LabelingView(prop: ILabels) {
             {
                 isInputVisible? 
                 <SInputWrapper {...lefttop}>
-                    <SInput ref={inputRef} type="text" name="class"/>
+                    <SInput ref={inputRef} type="text" name="class" placeholder="Input class name"/>
                 </SInputWrapper>
                 : null
             }

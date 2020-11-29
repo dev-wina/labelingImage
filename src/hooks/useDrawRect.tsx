@@ -1,19 +1,5 @@
 import { MutableRefObject } from 'react';
-import { Label } from '~modules/data';
-
-export interface IRect{
-    class: string
-    lt: {x: number, y: number}
-    rt: {x: number, y: number}
-    lb: {x: number, y: number}
-    rb: {x: number, y: number}
-    selected: boolean
-}
-
-const data: IRect[] = [
-        { lt: {x:0, y:0}, rt: {x:0.2, y:0}, lb: {x:0, y:0.2}, rb: {x:0.2, y:0.2}, selected: false, class: "Car"},
-        { lt: {x:0, y:0}, rt: {x:0.9, y:0}, lb: {x:0, y:0.9}, rb: {x:0.9, y:0.9}, selected: false, class: "Book"}
-] // TODO : 삭제예정, 이미지에서의 비율  
+import { Label, Point } from '~modules/data';
 
 export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[]){
     const canvas: HTMLCanvasElement = ref.current
@@ -21,22 +7,14 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
     if(context){
         context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
         rectList.map((rect)=>{
-            const temp: IRect = { 
-                class: rect.name,
-                lt: {x:rect.position.x, y:rect.position.y}, 
-                rt: {x:rect.position.x + rect.width, y:rect.position.y}, 
-                lb: {x:rect.position.x, y:rect.position.y + rect.height}, 
-                rb: {x:rect.position.x + rect.width, y:rect.position.y + rect.height}, 
-                selected: true
-            }
-            drawRect(context, temp)
-            drawAnchor(context, temp)
-            drawCoordBox(context, temp)
+            drawRect(context, rect.isSelected, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
+            drawAnchor(context, rect.isSelected, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
+            drawCoordBox(context, rect.isSelected, rect.className, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
         })  
     }
     
-    function drawRect(context, rect: IRect){
-        if(rect.selected == false) return
+    function drawRect(context, isSelected: Boolean, lt: Point, rt: Point, lb: Point, rb: Point){
+        if(isSelected == false) return
 
         context.fillStyle="#5668D933"
         context.strokeStyle = "#5668D9"
@@ -45,10 +23,10 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
 
         context.beginPath()
 
-        context.moveTo(rect.lt.x * 600, rect.lt.y * 600);
-        context.lineTo(rect.rt.x * 600, rect.rt.y * 600);
-        context.lineTo(rect.rb.x * 600, rect.rb.y * 600);
-        context.lineTo(rect.lb.x * 600, rect.lb.y * 600);
+        context.moveTo(lt.x * 600, lt.y * 600);
+        context.lineTo(rt.x * 600, rt.y * 600);
+        context.lineTo(rb.x * 600, rb.y * 600);
+        context.lineTo(lb.x * 600, lb.y * 600);
 
         context.closePath()
 
@@ -56,111 +34,110 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         context.fill()
     }
     
-    function drawAnchor(context, rect: IRect){
-        if(rect.selected == false) return
+    function drawAnchor(context, isSelected: Boolean, lt: Point, rt: Point, lb: Point, rb: Point){
+        if(isSelected == false) return
         context.strokeStyle = "#5668D9"
         context.lineJoin = 'miter'
         context.lineWidth = 1
 
         context.beginPath();
 
-        context.moveTo(rect.lt.x * 600 - 4, rect.lt.y * 600 - 4)
-        context.lineTo(rect.lt.x * 600 + 4, rect.lt.y * 600 - 4)
-        context.lineTo(rect.lt.x * 600 + 4, rect.lt.y * 600 + 4)
-        context.lineTo(rect.lt.x * 600 - 4, rect.lt.y * 600 + 4)
+        context.moveTo(lt.x * 600 - 4, lt.y * 600 - 4)
+        context.lineTo(lt.x * 600 + 4, lt.y * 600 - 4)
+        context.lineTo(lt.x * 600 + 4, lt.y * 600 + 4)
+        context.lineTo(lt.x * 600 - 4, lt.y * 600 + 4)
 
         context.closePath()
         context.stroke()
         context.fillStyle = "#fff"
-        context.fillRect(rect.lt.x * 600 - 4, rect.lt.y * 600 - 4, 8, 8)
+        context.fillRect(lt.x * 600 - 4, lt.y * 600 - 4, 8, 8)
 
 
         
-        context.moveTo(rect.rt.x * 600 - 4, rect.rt.y * 600 - 4)
-        context.lineTo(rect.rt.x * 600 + 4, rect.rt.y * 600 - 4)
-        context.lineTo(rect.rt.x * 600 + 4, rect.rt.y * 600 + 4)
-        context.lineTo(rect.rt.x * 600 - 4, rect.rt.y * 600 + 4)
+        context.moveTo(rt.x * 600 - 4, rt.y * 600 - 4)
+        context.lineTo(rt.x * 600 + 4, rt.y * 600 - 4)
+        context.lineTo(rt.x * 600 + 4, rt.y * 600 + 4)
+        context.lineTo(rt.x * 600 - 4, rt.y * 600 + 4)
 
         context.closePath()
         context.stroke()
         context.fillStyle = "#fff"
-        context.fillRect(rect.rt.x * 600 - 4, rect.rt.y * 600 - 4, 8, 8)
+        context.fillRect(rt.x * 600 - 4, rt.y * 600 - 4, 8, 8)
 
-        context.moveTo(rect.rb.x * 600 - 4, rect.rb.y * 600 - 4)
-        context.lineTo(rect.rb.x * 600 + 4, rect.rb.y * 600 - 4)
-        context.lineTo(rect.rb.x * 600 + 4, rect.rb.y * 600 + 4)
-        context.lineTo(rect.rb.x * 600 - 4, rect.rb.y * 600 + 4)
-
-        context.closePath()
-        context.stroke()
-        context.fillStyle = "#fff"
-        context.fillRect(rect.rb.x * 600 - 4, rect.rb.y * 600 - 4, 8, 8)
-
-        context.moveTo(rect.lb.x * 600 - 4, rect.lb.y * 600 - 4)
-        context.lineTo(rect.lb.x * 600 + 4, rect.lb.y * 600 - 4)
-        context.lineTo(rect.lb.x * 600 + 4, rect.lb.y * 600 + 4)
-        context.lineTo(rect.lb.x * 600 - 4, rect.lb.y * 600 + 4)
+        context.moveTo(rb.x * 600 - 4, rb.y * 600 - 4)
+        context.lineTo(rb.x * 600 + 4, rb.y * 600 - 4)
+        context.lineTo(rb.x * 600 + 4, rb.y * 600 + 4)
+        context.lineTo(rb.x * 600 - 4, rb.y * 600 + 4)
 
         context.closePath()
         context.stroke()
         context.fillStyle = "#fff"
-        context.fillRect(rect.lb.x * 600 - 4, rect.lb.y * 600 - 4, 8, 8)
+        context.fillRect(rb.x * 600 - 4, rb.y * 600 - 4, 8, 8)
+
+        context.moveTo(lb.x * 600 - 4, lb.y * 600 - 4)
+        context.lineTo(lb.x * 600 + 4, lb.y * 600 - 4)
+        context.lineTo(lb.x * 600 + 4, lb.y * 600 + 4)
+        context.lineTo(lb.x * 600 - 4, lb.y * 600 + 4)
+
+        context.closePath()
+        context.stroke()
+        context.fillStyle = "#fff"
+        context.fillRect(lb.x * 600 - 4, lb.y * 600 - 4, 8, 8)
 
         //////////////////////////////////////////////////////////////////////
-        context.moveTo(rect.lt.x * 600 + (((rect.rt.x * 600) - (rect.lt.x * 600)) / 2) - 4, (rect.lt.y * 600) - 4)
-        context.lineTo(rect.lt.x * 600 + (((rect.rt.x * 600) - (rect.lt.x * 600)) / 2) + 4, (rect.lt.y * 600) - 4)
-        context.lineTo(rect.lt.x * 600 + (((rect.rt.x * 600) - (rect.lt.x * 600)) / 2) + 4, (rect.lt.y * 600) + 4)
-        context.lineTo(rect.lt.x * 600 + (((rect.rt.x * 600) - (rect.lt.x * 600)) / 2) - 4, (rect.lt.y * 600) + 4)
+        context.moveTo(lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2) - 4, (lt.y * 600) - 4)
+        context.lineTo(lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2) + 4, (lt.y * 600) - 4)
+        context.lineTo(lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2) + 4, (lt.y * 600) + 4)
+        context.lineTo(lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2) - 4, (lt.y * 600) + 4)
 
         context.closePath()
         context.stroke()
         context.fillStyle = "#fff"
-        context.fillRect(rect.lt.x * 600 + ((rect.rt.x * 600 - rect.lt.x * 600) / 2) - 4, rect.lt.y * 600 - 4, 8, 8)
+        context.fillRect(lt.x * 600 + ((rt.x * 600 - lt.x * 600) / 2) - 4, lt.y * 600 - 4, 8, 8)
 
-        context.moveTo(rect.lt.x * 600 - 4, rect.lt.y * 600 + ((rect.lb.y * 600 - rect.lt.y * 600) / 2) - 4)
-        context.lineTo(rect.lt.x * 600 + 4, rect.lt.y * 600 + ((rect.lb.y * 600 - rect.lt.y * 600) / 2) - 4)
-        context.lineTo(rect.lt.x * 600 + 4, rect.lt.y * 600 + ((rect.lb.y * 600 - rect.lt.y * 600) / 2) + 4)
-        context.lineTo(rect.lt.x * 600 - 4, rect.lt.y * 600 + ((rect.lb.y * 600 - rect.lt.y * 600) / 2) + 4)
+        context.moveTo(lt.x * 600 - 4, lt.y * 600 + ((lb.y * 600 - lt.y * 600) / 2) - 4)
+        context.lineTo(lt.x * 600 + 4, lt.y * 600 + ((lb.y * 600 - lt.y * 600) / 2) - 4)
+        context.lineTo(lt.x * 600 + 4, lt.y * 600 + ((lb.y * 600 - lt.y * 600) / 2) + 4)
+        context.lineTo(lt.x * 600 - 4, lt.y * 600 + ((lb.y * 600 - lt.y * 600) / 2) + 4)
         
         context.closePath()
         context.stroke()
         context.fillStyle = "#fff"
-        context.fillRect(rect.lt.x * 600 - 4,rect.lt.y * 600 + ((rect.lb.y * 600 - rect.lt.y * 600) / 2) - 4, 8, 8)
+        context.fillRect(lt.x * 600 - 4,lt.y * 600 + ((lb.y * 600 - lt.y * 600) / 2) - 4, 8, 8)
 
-        context.moveTo(rect.lb.x * 600 + ((rect.rb.x * 600 - rect.lb.x * 600) / 2) - 4, rect.lb.y * 600 - 4)
-        context.lineTo(rect.lb.x * 600 + ((rect.rb.x * 600 - rect.lb.x * 600) / 2) + 4, rect.lb.y * 600 - 4)
-        context.lineTo(rect.lb.x * 600 + ((rect.rb.x * 600 - rect.lb.x * 600) / 2) + 4, rect.lb.y * 600 + 4)
-        context.lineTo(rect.lb.x * 600 + ((rect.rb.x * 600 - rect.lb.x * 600) / 2) - 4, rect.lb.y * 600 + 4)
+        context.moveTo(lb.x * 600 + ((rb.x * 600 - lb.x * 600) / 2) - 4, lb.y * 600 - 4)
+        context.lineTo(lb.x * 600 + ((rb.x * 600 - lb.x * 600) / 2) + 4, lb.y * 600 - 4)
+        context.lineTo(lb.x * 600 + ((rb.x * 600 - lb.x * 600) / 2) + 4, lb.y * 600 + 4)
+        context.lineTo(lb.x * 600 + ((rb.x * 600 - lb.x * 600) / 2) - 4, lb.y * 600 + 4)
         
         context.closePath()
         context.stroke()
         context.fillStyle = "#fff"
-        context.fillRect(rect.lb.x * 600 + ((rect.rb.x * 600 - rect.lb.x * 600) / 2) - 4,rect.lb.y * 600 - 4, 8, 8)
+        context.fillRect(lb.x * 600 + ((rb.x * 600 - lb.x * 600) / 2) - 4,lb.y * 600 - 4, 8, 8)
 
-        context.moveTo(rect.rt.x * 600 - 4, rect.rt.y * 600 + ((rect.rb.y * 600 - rect.rt.y * 600) / 2) - 4)
-        context.lineTo(rect.rt.x * 600 + 4, rect.rt.y * 600 + ((rect.rb.y * 600 - rect.rt.y * 600) / 2) - 4)
-        context.lineTo(rect.rt.x * 600 + 4, rect.rt.y * 600 + ((rect.rb.y * 600 - rect.rt.y * 600) / 2) + 4)
-        context.lineTo(rect.rt.x * 600 - 4, rect.rt.y * 600 + ((rect.rb.y * 600 - rect.rt.y * 600) / 2) + 4)
+        context.moveTo(rt.x * 600 - 4, rt.y * 600 + ((rb.y * 600 - rt.y * 600) / 2) - 4)
+        context.lineTo(rt.x * 600 + 4, rt.y * 600 + ((rb.y * 600 - rt.y * 600) / 2) - 4)
+        context.lineTo(rt.x * 600 + 4, rt.y * 600 + ((rb.y * 600 - rt.y * 600) / 2) + 4)
+        context.lineTo(rt.x * 600 - 4, rt.y * 600 + ((rb.y * 600 - rt.y * 600) / 2) + 4)
         
         context.closePath()
         context.stroke()
          context.fillStyle = "#fff"
-        context.fillRect(rect.rt.x * 600 - 4,rect.rt.y * 600 + ((rect.rb.y * 600 - rect.rt.y * 600) / 2) - 4, 8, 8)
+        context.fillRect(rt.x * 600 - 4,rt.y * 600 + ((rb.y * 600 - rt.y * 600) / 2) - 4, 8, 8)
     }
-    function drawCoordBox(context, rect: IRect){
-        if(rect.selected == false) return
+    function drawCoordBox(context, isSelected: Boolean, className:string, lt: Point, rt: Point, lb: Point, rb: Point){
+        if(isSelected == false) return
 
         context.fillStyle="#fff"
-        context.fillRect(rect.rb.x * 600 + 10, rect.rb.y * 600 + 5, 79, 56)
+        context.fillRect(rb.x * 600 + 10, rb.y * 600 + 5, 79, 56)
         context.beginPath();
         //context.font = fontSize + 'px ' + fontFamily;
         //context.textAlign = textAlign;
         //context.textBaseline = textBaseline;
         context.fillStyle = "black";
-        context.fillText( rect.class?rect.class:"class" ,rect.rb.x * 600 + 20, rect.rb.y * 600 + 20)
-        context.fillText(`W ${Math.abs(rect.rt.x-rect.lt.x).toFixed(2)}m`,rect.rb.x * 600 + 20, rect.rb.y * 600 + 35)
-        context.fillText(`H ${Math.abs(rect.lb.y-rect.lt.y).toFixed(2)}m`,rect.rb.x * 600 + 20, rect.rb.y * 600 + 50)
+        context.fillText( className?className:"class" ,rb.x * 600 + 20, rb.y * 600 + 20)
+        context.fillText(`W ${Math.abs(rt.x-lt.x).toFixed(2)}m`,rb.x * 600 + 20, rb.y * 600 + 35)
+        context.fillText(`H ${Math.abs(lb.y-lt.y).toFixed(2)}m`,rb.x * 600 + 20, rb.y * 600 + 50)
         context.stroke();
-        
     }
 }

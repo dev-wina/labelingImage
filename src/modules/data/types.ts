@@ -12,10 +12,18 @@ export interface Video{
 }
 
 export interface Label{
-    name: string
-    position: Point
+    className: string
+    position: Position
     width: number
     height:number
+    isSelected: boolean
+}
+
+export interface Position{
+    lt: Point
+    rt: Point
+    lb: Point
+    rb: Point
 }
 
 export interface Point{
