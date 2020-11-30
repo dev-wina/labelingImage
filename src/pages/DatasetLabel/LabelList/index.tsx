@@ -15,17 +15,13 @@ function LabelList(prop: ILabel) {
             <SFoldButton>labels</SFoldButton>    
             <SLabelList>
                 { labels?.map((label: Label, i: number) =>  
-                    <li key={`${label.className} + ${i}`}>
-                        <div>{label.className}</div>
-                        <div>{`(${(label.position.lt.x).toFixed(2)},
-                            ${(label.position.lt.y).toFixed(2)}) 
-                            (${(label.position.rt.x).toFixed(2)}, 
-                            ${(label.position.rt.y).toFixed(2)}) 
-                            (${(label.position.lb.x).toFixed(2)}, 
-                            ${(label.position.lb.y).toFixed(2)}) 
-                            (${(label.position.rb.x).toFixed(2)}, 
-                            ${(label.position.rb.y).toFixed(2)})`}</div>
-                    </li> ) 
+                    <SListItem key={`${label.className} + ${i}`}>
+                        <SLabelName>{label.className}</SLabelName>
+                        <div>{`lt: (${(label.position.lt.x).toFixed(2)}, ${(label.position.lt.y).toFixed(2)}) 
+                            rt: (${(label.position.rt.x).toFixed(2)}, ${(label.position.rt.y).toFixed(2)})`}</div>
+                        <div>{`lb: (${(label.position.lb.x).toFixed(2)}, ${(label.position.lb.y).toFixed(2)}) 
+                            rb: (${(label.position.rb.x).toFixed(2)}, ${(label.position.rb.y).toFixed(2)})`}</div>
+                    </SListItem> ) 
                 }
             </SLabelList>
         </SListFrame>
@@ -37,7 +33,7 @@ export default LabelList
 const SListFrame = styled.div`
     background-color:#fafafa;
     border: thin solid #edeff3;
-    width:20%;
+    width: 278px;
 `
 
 const SFoldButton = styled.div`
@@ -49,5 +45,20 @@ const SFoldButton = styled.div`
     vertical-align: start;
 `
 
-const SLabelList = styled.div`
+const SLabelList = styled.ul`
+    width:100%;
+    height: 100%;
 `
+
+const SListItem = styled.li`
+    padding: 21px 24px;
+    font-size: 12px;
+    border-bottom: thin solid #edeff3;
+`
+
+const SLabelName = styled.h1`
+    font-size: 12px;
+`
+
+
+

@@ -454,11 +454,13 @@ function LabelingView(prop: ILabels) {
                 }
                 useDrawRect(canvasRef, list)
                 inputRef.current.value = ""
+                modify({...data, ...{labels: list}})
             }
             else if(e.keyCode === KEYBOARD.BACKSPACE
                  || e.keyCode === KEYBOARD.DEL){
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
                 const newList = list.filter(rect => rect !== targetRect)
+                modify({...data, ...{labels: newList}})
                 setList(newList)
                 useDrawRect(canvasRef, newList)
             }
@@ -467,7 +469,7 @@ function LabelingView(prop: ILabels) {
                 imageRef.current.onmousemove = handleImageMove
                 imageRef.current.focus();
             }
-            modify({...data, ...{labels: list}})
+            
         }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
