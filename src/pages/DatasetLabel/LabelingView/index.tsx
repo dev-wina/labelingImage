@@ -8,6 +8,7 @@ import { withProps } from '~styles/themed-components';
 import useMousePoint from '~hooks/useMousePoint';
 import { PAINT_RECT_MODE } from '~constant';
 import useDrawRect from '~hooks/useDrawRect';
+import useStateWithPromise from '~hooks/useStateWithPromise';
 
 export interface ILabels {
     image?: string
@@ -30,7 +31,8 @@ function LabelingView(prop: ILabels) {
     const imageRef = useRef<HTMLCanvasElement>()
     const inputRef = useRef<HTMLInputElement>()
 
-    const [ paintRectMode, setPaintRectMode ] = useState<PAINT_RECT_MODE>(PAINT_RECT_MODE.NONE)
+    const [ paintRectMode, setPaintRectMode ] = useStateWithPromise(PAINT_RECT_MODE.NONE)
+
     const [ isInputVisible, setInputVisibility ] = useState<boolean>(true)
     const [ inputCtl, setInputCtl ]  = useState<ISInput>({ left: 100, top: 100, isVisible: false })
 
@@ -71,7 +73,7 @@ function LabelingView(prop: ILabels) {
     
 
     const changePaintRectMode = async (param: PAINT_RECT_MODE) => {
-        await setPaintRectMode(param)
+        await Promise.all(setPaintRectMode(param))
     }
 
 
@@ -79,7 +81,7 @@ function LabelingView(prop: ILabels) {
     const handleMouseDown = useCallback((e) => {
         setStart(mousePos)
         setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-        if(list.length === 0) setPaintRectMode(PAINT_RECT_MODE.CREATE)
+        if(list.length === 0) changePaintRectMode(PAINT_RECT_MODE.CREATE)
         list.map((rect)=>{
             if (   
                 rect.position.lt.x * 600 - 4 < mousePos.x && mousePos.x < rect.position.lt.x * 600 + 4 
@@ -106,10 +108,10 @@ function LabelingView(prop: ILabels) {
                 
                 setTargetRect(rect)
                 rect.isSelected = true;
-                setPaintRectMode(PAINT_RECT_MODE.MOVE)        
+                changePaintRectMode(PAINT_RECT_MODE.MOVE)        
             }
             else if(paintRectMode != PAINT_RECT_MODE.RESIZE){
-                setPaintRectMode(PAINT_RECT_MODE.CREATE)
+                changePaintRectMode(PAINT_RECT_MODE.CREATE)
             }
         })
         
@@ -184,12 +186,12 @@ function LabelingView(prop: ILabels) {
             inputRef.current.onkeydown = handleKeyPress
             inputRef.current.focus();
         }
-        setPaintRectMode(PAINT_RECT_MODE.NONE)
+        changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[mousePos, canvasRef, inputRef])
 
     const handleMouseLeave = useCallback((e) => {
         setEnd(mousePos)
-        setPaintRectMode(PAINT_RECT_MODE.NONE)
+        changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[])
 
     const handleKeyPress = useCallback((e) => {
@@ -207,7 +209,7 @@ function LabelingView(prop: ILabels) {
                 useDrawRect(canvasRef, newList)
             }
         }
-        setPaintRectMode(PAINT_RECT_MODE.NONE)
+        changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
 
  
