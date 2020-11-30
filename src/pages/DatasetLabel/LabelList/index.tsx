@@ -14,7 +14,19 @@ function LabelList(prop: ILabel) {
         <SListFrame>
             <SFoldButton>labels</SFoldButton>    
             <SLabelList>
-                { labels?.map((label: Label, i: number) => { <li key={`${label.name} + ${i}`}>{label.name}</li> }) }
+                { labels?.map((label: Label, i: number) =>  
+                    <li key={`${label.className} + ${i}`}>
+                        <div>{label.className}</div>
+                        <div>{`(${(label.position.lt.x).toFixed(2)},
+                            ${(label.position.lt.y).toFixed(2)}) 
+                            (${(label.position.rt.x).toFixed(2)}, 
+                            ${(label.position.rt.y).toFixed(2)}) 
+                            (${(label.position.lb.x).toFixed(2)}, 
+                            ${(label.position.lb.y).toFixed(2)}) 
+                            (${(label.position.rb.x).toFixed(2)}, 
+                            ${(label.position.rb.y).toFixed(2)})`}</div>
+                    </li> ) 
+                }
             </SLabelList>
         </SListFrame>
     )

@@ -18,6 +18,7 @@ function DatasetLabel(props: RouteComponentProps<MatchParams>) {
 
     const { data, findById } = useData()
     const videoData: Video|null = findById(parseInt(match.params.id))
+    
     return (
         <SDatasetLabel>
             <SHeader>Dataset Label</SHeader>

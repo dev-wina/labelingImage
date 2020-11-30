@@ -56,6 +56,11 @@ function LabelingView(prop: ILabels) {
 
     const handleSave = () => {
         modify({...data, ...{labels: list}})
+        
+        // if(data){
+        //     data.labels = list
+        //     modify(data)
+        // }
     }
 
 
@@ -358,6 +363,7 @@ function LabelingView(prop: ILabels) {
 
 
     const handleMouseDown = useCallback((e) => {
+        console.log(list)
         setStart(mousePos)
         setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
         if(list.length === 0){
@@ -420,6 +426,7 @@ function LabelingView(prop: ILabels) {
         setEnd(mousePos)
         inputClassName()
         changePaintRectMode(PAINT_RECT_MODE.NONE)
+        handleSave()
     },[mousePos, canvasRef, inputRef])
 
 
@@ -460,6 +467,7 @@ function LabelingView(prop: ILabels) {
                 imageRef.current.onmousemove = handleImageMove
                 imageRef.current.focus();
             }
+            modify({...data, ...{labels: list}})
         }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
