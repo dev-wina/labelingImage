@@ -45,19 +45,6 @@ function LabelingView(prop: ILabels) {
 
     const { modify, findById } = useData()
 
-    const tempRect: Label = {
-        className: "class",  
-        position: {
-            lt: { x: start.x / 600, y: start.y / 600 },
-            rt: { x: mousePos.x / 600, y: start.y / 600 },
-            lb: { x: start.x / 600, y: mousePos.y / 600 },
-            rb: { x: mousePos.x / 600, y: mousePos.y / 600 }
-        },
-        width: mousePos.x / 600 - start.x / 600,
-        height: mousePos.y / 600 - start.y / 600,
-        isSelected: true
-    }
-
 
     useEffect(() => {
         if (data) setList(data.labels)
@@ -176,7 +163,6 @@ function LabelingView(prop: ILabels) {
         list.map((rect)=>{
             rect.isSelected = false
         })
-        console.log("중요중요중요",list)
         for(let i = 0 ; i < list.length ; i++){
             //rect 안에 mousePoint hit 시
             if(isHitRect(list[i])){
@@ -198,19 +184,47 @@ function LabelingView(prop: ILabels) {
             }
         }
         //hit되지 않았을 때
-        setTargetRect(tempRect)
-        list.map((rect)=>{
-            rect.isSelected = false
-        })
-        setList([...list,tempRect])
-        useDrawRect(canvasRef, list)
-        changePaintRectMode(PAINT_RECT_MODE.CREATE)
+        if(imageRef.current){
+            const img_w = imageRef.current.width
+            const img_h = imageRef.current.height
+            const tempRect = {
+                className: "class",  
+                position: {
+                    lt: { x: start.x / img_w, y: start.y / img_h },
+                    rt: { x: mousePos.x / img_w, y: start.y / img_h },
+                    lb: { x: start.x / img_w, y: mousePos.y / img_h },
+                    rb: { x: mousePos.x / img_w, y: mousePos.y / img_h }
+                },
+                width: mousePos.x / img_w - start.x / img_w,
+                height: mousePos.y / img_h - start.y / img_h,
+                isSelected: true
+            }
+            setTargetRect(tempRect)
+            setList([...list,tempRect])
+            useDrawRect(canvasRef, list)
+            changePaintRectMode(PAINT_RECT_MODE.CREATE)
+        }
     }
 
     const createRect = () => {
-        list[list.length-1] = tempRect
-        setTargetRect(list[list.length-1])
-        useDrawRect(canvasRef, list)
+        if(imageRef.current){
+            const img_w = imageRef.current.width
+            const img_h = imageRef.current.height
+            list[list.length-1] = {
+                className: "class",  
+                position: {
+                    lt: { x: start.x / img_w, y: start.y / img_h },
+                    rt: { x: mousePos.x / img_w, y: start.y / img_h },
+                    lb: { x: start.x / img_w, y: mousePos.y / img_h },
+                    rb: { x: mousePos.x / img_w, y: mousePos.y / img_h }
+                },
+                width: mousePos.x / img_w - start.x / img_w,
+                height: mousePos.y / img_h - start.y / img_h,
+                isSelected: true
+            }
+            setTargetRect(list[list.length-1])
+            useDrawRect(canvasRef, list)
+        }
     }
 
     const resizeRectCorner = () => {
@@ -347,10 +361,26 @@ function LabelingView(prop: ILabels) {
         setStart(mousePos)
         setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
         if(list.length === 0){
-            changePaintRectMode(PAINT_RECT_MODE.CREATE)
-            setTargetRect(tempRect)
-            setList([...list,tempRect])
-            useDrawRect(canvasRef, list)
+            if(imageRef.current){
+                const img_w = imageRef.current.width
+                const img_h = imageRef.current.height
+                const tempRect = {
+                    className: "class",  
+                    position: {
+                        lt: { x: start.x / img_w, y: start.y / img_h },
+                        rt: { x: mousePos.x / img_w, y: start.y / img_h },
+                        lb: { x: start.x / img_w, y: mousePos.y / img_h },
+                        rb: { x: mousePos.x / img_w, y: mousePos.y / img_h }
+                    },
+                    width: mousePos.x / img_w - start.x / img_w,
+                    height: mousePos.y / img_h - start.y / img_h,
+                    isSelected: true
+                }
+                setTargetRect(tempRect)
+                setList([...list,tempRect])
+                useDrawRect(canvasRef, list)
+                changePaintRectMode(PAINT_RECT_MODE.CREATE)
+            }
         }
         else {
             checkHitRect()
@@ -404,11 +434,17 @@ function LabelingView(prop: ILabels) {
         if(inputRef.current && targetRect && canvasRef.current && imageRef.current){
             if (e.keyCode === KEYBOARD.ENTER) {
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-                list.map((rect)=>{
-                    if(rect === targetRect){
-                        rect.className = inputRef.current.value
-                    }
-                })
+                
+                if(paintRectMode === PAINT_RECT_MODE.CREATE){
+                    list[list.length-1].className = inputRef.current.value
+                }
+                else{
+                    list.map((rect)=>{
+                        if(rect === targetRect){
+                            rect.className = inputRef.current.value
+                        }
+                    })
+                }
                 useDrawRect(canvasRef, list)
                 inputRef.current.value = ""
             }

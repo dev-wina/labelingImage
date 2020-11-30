@@ -8,7 +8,7 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
         rectList.map((rect)=>{
             drawRect(context, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
-            drawAnchor(context, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
+            drawAnchor(context, rect.isSelected, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
             drawCoordBox(context, rect.isSelected, rect.className, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
         })  
     }
@@ -32,7 +32,9 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         context.fill()
     }
     
-    function drawAnchor(context, lt: Point, rt: Point, lb: Point, rb: Point){
+    function drawAnchor(context, isSelected: Boolean, lt: Point, rt: Point, lb: Point, rb: Point){
+        if(isSelected == false) return
+
         context.strokeStyle = "#5668D9"
         context.lineJoin = 'miter'
         context.lineWidth = 1
