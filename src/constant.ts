@@ -14,5 +14,6 @@ export enum PAINT_RECT_MODE {
 export enum KEYBOARD{
     BACKSPACE = 8,
     ENTER = 13,
+    SPACEBAR = 32,
     DEL = 46
 }

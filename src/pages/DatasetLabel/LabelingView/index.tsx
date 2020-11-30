@@ -45,9 +45,8 @@ function LabelingView(prop: ILabels) {
 
     const { modify, findById } = useData()
 
-    
-    const tempRect: Label = { 
-        className: "class",
+    const tempRect: Label = {
+        className: "class",  
         position: {
             lt: { x: start.x / 600, y: start.y / 600 },
             rt: { x: mousePos.x / 600, y: start.y / 600 },
@@ -71,10 +70,10 @@ function LabelingView(prop: ILabels) {
     const handleSave = () => {
         modify({...data, ...{labels: list}})
     }
-    
+
 
     const changePaintRectMode = async (param: PAINT_RECT_MODE) => {
-        await Promise.all(setPaintRectMode(param))
+        await setPaintRectMode(param) //Promise.all([setPaintRectMode(param)])
     }
 
     const isHitRectCorner = (rect) =>{
@@ -87,13 +86,13 @@ function LabelingView(prop: ILabels) {
         const lb = rect.position.lb
         const rb = rect.position.rb
 
-        if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x *  img_w + 4 
-        && lt.y * img_h - 4 < mousePos.y && mousePos.y < lt.y * img_h + 4 
-        || rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4 
-        && rt.y * img_h - 4 < mousePos.y && mousePos.y < rt.y * img_h + 4 
-        || lb.x * img_w - 4 < mousePos.x && mousePos.x < lb.x * img_w + 4 
-        && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4 
-        || rb.x * img_w - 4 < mousePos.x && mousePos.x < rb.x * img_w + 4 
+        if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x *  img_w + 4
+        && lt.y * img_h - 4 < mousePos.y && mousePos.y < lt.y * img_h + 4
+        || rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4
+        && rt.y * img_h - 4 < mousePos.y && mousePos.y < rt.y * img_h + 4
+        || lb.x * img_w - 4 < mousePos.x && mousePos.x < lb.x * img_w + 4
+        && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4
+        || rb.x * img_w - 4 < mousePos.x && mousePos.x < rb.x * img_w + 4
         && rb.y * img_h - 4 < mousePos.y && mousePos.y < rb.y * img_h + 4){
             return true
         }
@@ -154,19 +153,20 @@ function LabelingView(prop: ILabels) {
             if (isHitRectCorner(rect)) {
                 setTargetRect(rect)
                 rect.isSelected = true;
-                setPaintRectMode(PAINT_RECT_MODE.RESIZE_CORNER)
+                changePaintRectMode(PAINT_RECT_MODE.RESIZE_CORNER)
+                console.log("꼭지점맞는순간",paintRectMode)
             }
             // rect의 꼭짓점 제외한 anchor에 enter시
             else if(isHitRectAnchor(rect)){
                 setTargetRect(rect)
                 rect.isSelected = true;
-                setPaintRectMode(PAINT_RECT_MODE.RESIZE_ANCHOR)
+                changePaintRectMode(PAINT_RECT_MODE.RESIZE_ANCHOR)
             }
             //rect 안에 mousePoint hit 시
             else if(isHitRect(rect)){
                 setTargetRect(rect)
                 rect.isSelected = true;
-                changePaintRectMode(PAINT_RECT_MODE.MOVE)        
+                changePaintRectMode(PAINT_RECT_MODE.MOVE)
             }
         })
         //hit되지 않았을 때
@@ -186,7 +186,7 @@ function LabelingView(prop: ILabels) {
                 const img_w = imageRef.current.width
                 const img_h = imageRef.current.height
                 const lt = rect.position.lt
-        
+
                 rect.position = {
                         lt: { x: lt.x, y: lt.y},
                         rt: { x: mousePos.x / img_w, y: lt.y },
@@ -222,14 +222,14 @@ function LabelingView(prop: ILabels) {
         setInputCtl({left: mousePos.x, top: start.y, isVisible: true})
         inputRef.current.onkeydown = handleKeyPress
         inputRef.current.focus();
-    }    
+    }
 
 
 
     const handleMouseDown = useCallback((e) => {
         setStart(mousePos)
         setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-        
+
         list.length !== 0? checkHitRect() : changePaintRectMode(PAINT_RECT_MODE.CREATE)
 
         if( PAINT_RECT_MODE.CREATE && canvasRef && canvasRef.current){
@@ -237,13 +237,22 @@ function LabelingView(prop: ILabels) {
             setList([...list,tempRect])
             useDrawRect(canvasRef, list)
         }
-        
+
     },[paintRectMode, mousePos, targetRect, start, imageRef])
 
+     const handleImageMove = useCallback((e) => {
+         if(!image) return
+            const img = new Image()
+            img.src = image
+            img.onload = () => {
+            imageRef.current?.getContext('2d')?.drawImage(img, mousePos.x, mousePos.y)
+        } 
+    },[paintRectMode, mousePos, targetRect, start, imageRef, image])
 
     const handleMouseMove = useCallback((e) => {
         e.preventDefault()
         e.stopPropagation()
+        console.log("마우스움직일때",paintRectMode)
         if(canvasRef.current){
             if(paintRectMode === PAINT_RECT_MODE.CREATE){
                 createRect()
@@ -270,11 +279,10 @@ function LabelingView(prop: ILabels) {
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[])
 
-    
+
 
     const handleKeyPress = useCallback((e) => {
-        if(inputRef.current && targetRect && canvasRef.current){
-            alert(e.keyCode)
+        if(inputRef.current && targetRect && canvasRef.current && imageRef.current){
             if (e.keyCode === KEYBOARD.ENTER) {
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
                 list[list.length-1].className = inputRef.current.value
@@ -282,19 +290,24 @@ function LabelingView(prop: ILabels) {
                 useDrawRect(canvasRef, list)
                 inputRef.current.value = ""
             }
-            else if(e.keyCode === KEYBOARD.BACKSPACE 
+            else if(e.keyCode === KEYBOARD.BACKSPACE
                  || e.keyCode === KEYBOARD.DEL){
                 const newList = list.filter(rect => rect !== targetRect)
                 setList(newList)
                 useDrawRect(canvasRef, newList)
             }
+            else if (e.keyCode === KEYBOARD.SPACEBAR) {
+                alert("!")  
+                imageRef.current.onmousemove = handleImageMove
+                imageRef.current.focus();
+            }
         }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
 
- 
+
     useEffect(()=>{
-        if (canvasRef && canvasRef.current) {
+        if (canvasRef.current) {
             canvasRef.current.addEventListener("mousedown", handleMouseDown )
             canvasRef.current.addEventListener("mousemove", handleMouseMove )
             canvasRef.current.addEventListener("mouseup", handleMouseUp )
@@ -303,7 +316,7 @@ function LabelingView(prop: ILabels) {
         }
 
         return () => {
-            if (canvasRef && canvasRef.current) {
+            if (canvasRef.current) {
                 canvasRef.current.removeEventListener("mousedown", handleMouseDown )
                 canvasRef.current.removeEventListener("mousemove", handleMouseMove )
                 canvasRef.current.removeEventListener("mouseup", handleMouseUp )
@@ -314,20 +327,18 @@ function LabelingView(prop: ILabels) {
     },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleKeyPress])
 
     useImage(imageRef, image)
-    useImageSize(image)
     //useCreateLabel(canvasRef, imageRef, inputRef, addLabel)
-    
+
     // TODO : 현재 imageRef의 W,H는 canvas의 크기를 가져오고 있다. image의 크기로 바꿔야함
     return(
         <SLabelingView>
-            <canvas width="970px" height="594px" style={{position:"absolute"}}
-                ref={imageRef}>
-            </canvas>
-            <canvas width="970px" height="594px" style={{position:"absolute"}}
-                ref={canvasRef}>
-            </canvas>
+            <SImageWapper>
+                <canvas width="970px" height="594px" style={{position:"absolute"}}
+                ref={canvasRef}/>
+                <img src={image} ref={imageRef}/>
+            </SImageWapper>
             {
-                isInputVisible? 
+                isInputVisible?
                 <SInputWrapper {...inputCtl}>
                     <SInput ref={inputRef} type="text" name="class" placeholder="Input class name"/>
                 </SInputWrapper>
@@ -345,6 +356,14 @@ const SLabelingView = styled.div`
     width:100%;
     height:100%;
 `
+
+const SImageWapper = styled.div`
+    position: relative;
+    display: grid;
+    width:100%;
+    height:100%;
+`
+
 // TODO : border안나옴, 설정할 것
 const SInputWrapper = withProps<ISInput,HTMLInputElement>(styled.div)`
     z-index: 2;
@@ -363,7 +382,7 @@ const SInputWrapper = withProps<ISInput,HTMLInputElement>(styled.div)`
 const SInput = styled.input`
     position: absolute;
     width: 147px;
-    height: 22px; 
+    height: 22px;
     left: 15px;
     top: 5px;
 `
