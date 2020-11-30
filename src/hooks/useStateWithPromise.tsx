@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export default function useStateWithPromise(initialState){
+export default function useStateWithPromise(initialState: any){
     const [state, setState] = useState(initialState);
-    const resolverRef = useRef(null);
+    const resolverRef = useRef<any>(null);
 
     useEffect(()=> {
         if (resolverRef.current) {

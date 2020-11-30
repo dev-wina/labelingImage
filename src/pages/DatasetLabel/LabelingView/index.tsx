@@ -36,10 +36,10 @@ function LabelingView(prop: ILabels) {
     const [ isInputVisible, setInputVisibility ] = useState<boolean>(true)
     const [ inputCtl, setInputCtl ]  = useState<ISInput>({ left: 100, top: 100, isVisible: false })
 
-    const [ start, setStart ] = useState<Point>({x: 0, y: 0})
-    const [ end, setEnd ] = useState<Point>({x: 0, y: 0})
-    const [ targetRect, setTargetRect ] = useState<Label>()
-    const [ list, setList ] = useState<Label[]>([]) // TODO : labelList에 넘겨줘야함
+    const [ start, setStart ] = useStateWithPromise({x: 0, y: 0})
+    const [ end, setEnd ] = useStateWithPromise({x: 0, y: 0})
+    const [ targetRect, setTargetRect ] = useStateWithPromise(null)
+    const [ list, setList ] = useStateWithPromise([]) // TODO : labelList에 넘겨줘야함
     const mousePos = useMousePoint(canvasRef).point
 
     const { modify, findById } = useData()
@@ -103,8 +103,8 @@ function LabelingView(prop: ILabels) {
             //  setPaintRectMode(PAINT_RECT_MODE.RESIZE)
             //}
             else if(   
-                rect.position.lt.x * 600 < mousePos.x && mousePos.x < rect.position.rt.x * 600
-                && rect.position.lt.y * 600 < mousePos.y && mousePos.y < rect.position.lb.y * 600){
+                rect.position.lt.x * 600 + 4 < mousePos.x && mousePos.x < rect.position.rt.x * 600 - 4
+                && rect.position.lt.y * 600 + 4 < mousePos.y && mousePos.y < rect.position.lb.y * 600 - 4){
                 
                 setTargetRect(rect)
                 rect.isSelected = true;
