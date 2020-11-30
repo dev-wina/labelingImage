@@ -6,7 +6,7 @@ import useImage from '~hooks/useImage';
 import useImageSize from '~hooks/useImageSize';
 import { withProps } from '~styles/themed-components';
 import useMousePoint from '~hooks/useMousePoint';
-import { KEYBOARD, PAINT_RECT_MODE } from '~constant';
+import { ANCHOR, KEYBOARD, PAINT_RECT_MODE } from '~constant';
 import useDrawRect from '~hooks/useDrawRect';
 import useStateWithPromise from '~hooks/useStateWithPromise';
 
@@ -86,19 +86,34 @@ function LabelingView(prop: ILabels) {
         const lb = rect.position.lb
         const rb = rect.position.rb
 
-        if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x *  img_w + 4
-        && lt.y * img_h - 4 < mousePos.y && mousePos.y < lt.y * img_h + 4
-        || rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4
-        && rt.y * img_h - 4 < mousePos.y && mousePos.y < rt.y * img_h + 4
-        || lb.x * img_w - 4 < mousePos.x && mousePos.x < lb.x * img_w + 4
-        && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4
-        || rb.x * img_w - 4 < mousePos.x && mousePos.x < rb.x * img_w + 4
+        if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x * img_w + 4
+        && lt.y * img_h - 4 < mousePos.y && mousePos.y < lt.y * img_h + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.LEFT_TOP)
+            return true
+        }
+        else if(rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4
+        && rt.y * img_h - 4 < mousePos.y && mousePos.y < rt.y * img_h + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.RIGHT_TOP)
+            return true
+        }
+        else if(lb.x * img_w - 4 < mousePos.x && mousePos.x < lb.x * img_w + 4
+        && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.LEFT_BOTTOM)
+            return true
+        }
+        else if(rb.x * img_w - 4 < mousePos.x && mousePos.x < rb.x * img_w + 4
         && rb.y * img_h - 4 < mousePos.y && mousePos.y < rb.y * img_h + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.RIGHT_BOTTOM)
             return true
         }
         return false
     }
 
+    const [ anchorDirect, setAnchorDirect ] = useStateWithPromise(null)
     const isHitRectAnchor = (rect) =>{
         if(!imageRef.current) return
 
@@ -109,22 +124,32 @@ function LabelingView(prop: ILabels) {
         const lb = rect.position.lb
         const rb = rect.position.rb
 
-        if(lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) - 4, (lt.y * img_h) - 4
-        && lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) + 4, (lt.y * img_h) - 4
-        && lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) + 4, (lt.y * img_h) + 4
-        && lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) - 4, (lt.y * img_h) + 4
-        || lt.x * img_w - 4, lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) - 4
-        && lt.x * img_w + 4, lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) - 4
-        && lt.x * img_w + 4, lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) + 4
-        && lt.x * img_w - 4, lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) + 4
-        || lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) - 4, lb.y * img_h - 4
-        && lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) + 4, lb.y * img_h - 4
-        && lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) + 4, lb.y * img_h + 4
-        && lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) - 4, lb.y * img_h + 4
-        || rt.x * img_w - 4, rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) - 4
-        && rt.x * img_w + 4, rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) - 4
-        && rt.x * img_w + 4, rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) + 4
-        && rt.x * img_w - 4, rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) + 4 ){
+        if(lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) - 4 < mousePos.x 
+        && mousePos.x < lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) + 4
+        &&(lt.y * img_h) - 4 < mousePos.y && mousePos.y < (lt.y * img_h) + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.TOP)
+            return true
+        }
+        else if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x * img_w + 4
+        && lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) - 4 < mousePos.y 
+        && mousePos.y < lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.LEFT)
+            return true
+        }
+        else if(lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) - 4 < mousePos.x 
+        && mousePos.x < lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) + 4
+        && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.BOTTOM)
+            return true
+        }
+        else if(rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4
+        && rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) - 4 < mousePos.y 
+        && mousePos.y < rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) + 4){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.RIGHT)
             return true
         }
         return false
@@ -138,40 +163,41 @@ function LabelingView(prop: ILabels) {
         const lt = rect.position.lt
         const rt = rect.position.rt
         const lb = rect.position.lb
-        const rb = rect.position.rb
 
         if(lt.x * img_w + 4 < mousePos.x && mousePos.x < rt.x * img_w - 4
         && lt.y * img_h + 4 < mousePos.y && mousePos.y < lb.y * img_h - 4 ){
+            setTargetRect(rect)
             return true
         }
         return false
     }
 
     const checkHitRect = () => {
-        list.map((rect)=>{
+        for(let i = 0 ; i < list.length ; i++){
+            //rect 안에 mousePoint hit 시
+            if(isHitRect(list[i])){
+                list[i].isSelected = true;
+                changePaintRectMode(PAINT_RECT_MODE.MOVE)
+                return 
+            }
             //rect의 꼭짓점에 mousePoint hit 시
-            if (isHitRectCorner(rect)) {
-                setTargetRect(rect)
-                rect.isSelected = true;
+            else if (isHitRectCorner(list[i])) {
+                list[i].isSelected = true;
                 changePaintRectMode(PAINT_RECT_MODE.RESIZE_CORNER)
-                console.log("꼭지점맞는순간",paintRectMode)
+                return
             }
             // rect의 꼭짓점 제외한 anchor에 enter시
-            else if(isHitRectAnchor(rect)){
-                setTargetRect(rect)
-                rect.isSelected = true;
+            else if(isHitRectAnchor(list[i])){
+                list[i].isSelected = true;
                 changePaintRectMode(PAINT_RECT_MODE.RESIZE_ANCHOR)
+                return 
             }
-            //rect 안에 mousePoint hit 시
-            else if(isHitRect(rect)){
-                setTargetRect(rect)
-                rect.isSelected = true;
-                changePaintRectMode(PAINT_RECT_MODE.MOVE)
-            }
-        })
+        }
         //hit되지 않았을 때
-        if(paintRectMode == PAINT_RECT_MODE.NONE)
-            changePaintRectMode(PAINT_RECT_MODE.CREATE)
+        setTargetRect(tempRect)
+        setList([...list,tempRect])
+        useDrawRect(canvasRef, list)
+        changePaintRectMode(PAINT_RECT_MODE.CREATE)
     }
 
     const createRect = () => {
@@ -180,48 +206,141 @@ function LabelingView(prop: ILabels) {
         useDrawRect(canvasRef, list)
     }
 
-    const resizeRect = () => {
-        list.map((rect)=>{
-            if(rect === targetRect && imageRef.current){
+    const resizeRectCorner = () => {
+        for(let i = 0 ; i < list.length ; i++){
+            if(list[i] === targetRect && imageRef.current){
                 const img_w = imageRef.current.width
                 const img_h = imageRef.current.height
-                const lt = rect.position.lt
-
-                rect.position = {
+                const lt = list[i].position.lt
+                const rt = list[i].position.rt
+                const lb = list[i].position.lb
+                const rb = list[i].position.rb
+                if(anchorDirect === ANCHOR.LEFT_TOP){
+                    list[i].position = {
+                        lt: { x: mousePos.x / img_w, y: mousePos.y / img_h },
+                        rt: { x: rt.x, y: mousePos.y / img_h },
+                        lb: { x: mousePos.x / img_w, y: lb.y },
+                        rb: { x: rb.x , y: rb.y }
+                    }
+                }
+                else if(anchorDirect === ANCHOR.LEFT_BOTTOM){
+                    list[i].position = {
+                        lt: { x: mousePos.x / img_w, y: lt.y},
+                        rt: { x: rt.x, y: rt.y },
+                        lb: { x: mousePos.x / img_w, y: mousePos.y / img_h },
+                        rb: { x: rb.x , y: mousePos.y / img_h }
+                    }
+                }
+                else if(anchorDirect === ANCHOR.RIGHT_TOP){
+                    list[i].position = {
+                        lt: { x: lt.x, y: mousePos.y / img_h},
+                        rt: { x: mousePos.x / img_w, y: mousePos.y / img_h },
+                        lb: { x: lb.x, y: lb.y },
+                        rb: { x: mousePos.x / img_w , y: rb.y }
+                    }
+                }
+                else if(anchorDirect === ANCHOR.RIGHT_BOTTOM){
+                    list[i].position = {
                         lt: { x: lt.x, y: lt.y},
                         rt: { x: mousePos.x / img_w, y: lt.y },
                         lb: { x: lt.x, y: mousePos.y / img_h },
                         rb: { x: mousePos.x / img_w, y: mousePos.y / img_h }
                     }
-                setTargetRect(rect)
+                }
+
+                list[i].width = rt.x - lt.x 
+                list[i].height = rt.y - lt.y
+                setTargetRect(list[i])
+                break
             }
-        })
+        }
+        useDrawRect(canvasRef, list)
+    }
+
+    const resizeRectAnchor = () => {
+        for(let i = 0 ; i < list.length ; i++){
+            if(list[i] === targetRect && imageRef.current){
+                const img_w = imageRef.current.width
+                const img_h = imageRef.current.height
+                const lt = list[i].position.lt
+                const rt = list[i].position.rt
+                const lb = list[i].position.lb
+                const rb = list[i].position.rb
+                if(anchorDirect === ANCHOR.TOP){
+                    list[i].position = {
+                        lt: { x: lt.x, y: mousePos.y / img_h },
+                        rt: { x: rt.x, y: mousePos.y / img_h },
+                        lb: { x: lb.x, y: lb.y },
+                        rb: { x: rb.x , y: rb.y }
+                    }
+                    list[i].height = lb.y - lt.y 
+                }
+                else if(anchorDirect === ANCHOR.LEFT){
+                    list[i].position = {
+                        lt: { x: mousePos.x / img_w, y: lt.y},
+                        rt: { x: rt.x, y: rt.y },
+                        lb: { x: mousePos.x / img_w, y: lb.y },
+                        rb: { x: rb.x , y: rb.y }
+                    }
+                    list[i].width = rt.x - lt.x 
+                }
+                else if(anchorDirect === ANCHOR.BOTTOM){
+                    list[i].position = {
+                        lt: { x: lt.x, y: lt.y},
+                        rt: { x: rt.x, y: rt.y },
+                        lb: { x: lb.x, y: mousePos.y / img_h },
+                        rb: { x: rb.x , y: mousePos.y / img_h }
+                    }
+                    list[i].height = lb.y - lt.y 
+                }
+                else if(anchorDirect === ANCHOR.RIGHT){
+                    list[i].position = {
+                        lt: { x: lt.x, y: lt.y},
+                        rt: { x: mousePos.x / img_w, y: rt.y },
+                        lb: { x: lb.x, y: lb.y },
+                        rb: { x: mousePos.x / img_w, y: rb.y }
+                    }
+                    list[i].width = rt.x - lt.x 
+                }
+                setTargetRect(list[i])
+                break
+            }
+        }
         useDrawRect(canvasRef, list)
     }
 
     const moveRect = () => {
-        list.map((rect)=>{
-            if(rect === targetRect && imageRef.current){
+        for(let i = 0 ; i < list.length ; i++){
+            if(list[i] === targetRect && imageRef.current){
                 const img_w = imageRef.current.width
                 const img_h = imageRef.current.height
-                rect.position = {
-                        lt: { x: mousePos.x / img_w, y: mousePos.y / img_h},
-                        rt: { x: mousePos.x / img_w + rect.width, y: mousePos.y / img_h },
-                        lb: { x: mousePos.x / img_w, y: mousePos.y / img_h + rect.height },
-                        rb: { x: mousePos.x / img_w + rect.width, y: mousePos.y / img_h + rect.height }
-                    }
-                setTargetRect(rect)
+                list[i].position = {
+                    lt: { x: mousePos.x / img_w, y: mousePos.y / img_h},
+                    rt: { x: mousePos.x / img_w + list[i].width, y: mousePos.y / img_h },
+                    lb: { x: mousePos.x / img_w, y: mousePos.y / img_h + list[i].height },
+                    rb: { x: mousePos.x / img_w + list[i].width, y: mousePos.y / img_h + list[i].height }
+                }
+                setTargetRect(list[i])
+                break
             }
-        })
+        }
         useDrawRect(canvasRef, list)
     }
 
     const inputClassName = () => {
-        if(!inputRef.current) return
-
-        setInputCtl({left: mousePos.x, top: start.y, isVisible: true})
-        inputRef.current.onkeydown = handleKeyPress
-        inputRef.current.focus();
+        
+        
+        if(paintRectMode === PAINT_RECT_MODE.CREATE){
+            if(!inputRef.current) return
+            setInputCtl({left: mousePos.x, top: start.y, isVisible: true})
+            inputRef.current.onkeydown = handleKeyPress
+            inputRef.current.focus();
+        }
+        else{
+            if(!canvasRef.current) return
+            canvasRef.current.onkeydown = handleKeyPress
+            canvasRef.current.focus();
+        }
     }
 
 
@@ -229,15 +348,15 @@ function LabelingView(prop: ILabels) {
     const handleMouseDown = useCallback((e) => {
         setStart(mousePos)
         setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-
-        list.length !== 0? checkHitRect() : changePaintRectMode(PAINT_RECT_MODE.CREATE)
-
-        if( PAINT_RECT_MODE.CREATE && canvasRef && canvasRef.current){
+        if(list.length === 0){
+            changePaintRectMode(PAINT_RECT_MODE.CREATE)
             setTargetRect(tempRect)
             setList([...list,tempRect])
             useDrawRect(canvasRef, list)
         }
-
+        else {
+            checkHitRect()
+        }
     },[paintRectMode, mousePos, targetRect, start, imageRef])
 
      const handleImageMove = useCallback((e) => {
@@ -250,15 +369,18 @@ function LabelingView(prop: ILabels) {
     },[paintRectMode, mousePos, targetRect, start, imageRef, image])
 
     const handleMouseMove = useCallback((e) => {
+        
         e.preventDefault()
         e.stopPropagation()
-        console.log("마우스움직일때",paintRectMode)
         if(canvasRef.current){
             if(paintRectMode === PAINT_RECT_MODE.CREATE){
                 createRect()
             }
             else if(paintRectMode === PAINT_RECT_MODE.RESIZE_CORNER){
-                resizeRect()
+                resizeRectCorner()
+            }
+            else if(paintRectMode === PAINT_RECT_MODE.RESIZE_ANCHOR){
+                resizeRectAnchor()
             }
             else if(paintRectMode === PAINT_RECT_MODE.MOVE){
                 moveRect()
@@ -292,12 +414,14 @@ function LabelingView(prop: ILabels) {
             }
             else if(e.keyCode === KEYBOARD.BACKSPACE
                  || e.keyCode === KEYBOARD.DEL){
+                alert(targetRect)
+                setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
                 const newList = list.filter(rect => rect !== targetRect)
                 setList(newList)
                 useDrawRect(canvasRef, newList)
             }
+            // TODO : 따로 뺄 것
             else if (e.keyCode === KEYBOARD.SPACEBAR) {
-                alert("!")  
                 imageRef.current.onmousemove = handleImageMove
                 imageRef.current.focus();
             }
@@ -329,7 +453,6 @@ function LabelingView(prop: ILabels) {
     useImage(imageRef, image)
     //useCreateLabel(canvasRef, imageRef, inputRef, addLabel)
 
-    // TODO : 현재 imageRef의 W,H는 canvas의 크기를 가져오고 있다. image의 크기로 바꿔야함
     return(
         <SLabelingView>
             <SImageWapper>

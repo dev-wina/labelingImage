@@ -12,7 +12,7 @@ export default function useImage(ref: MutableRefObject<any>, image: any){
         const img = new Image()
         img.src = image
         img.onload = () => {
-            ref.current.getContext('2d')?.drawImage(img, 0, 0)
+            ref.current.getContext('2d').drawImage(img, 0, 0)
         }
 
         if (ref && ref.current) {

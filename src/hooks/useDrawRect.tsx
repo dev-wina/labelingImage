@@ -7,15 +7,13 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
     if(context){
         context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
         rectList.map((rect)=>{
-            drawRect(context, rect.isSelected, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
-            drawAnchor(context, rect.isSelected, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
+            drawRect(context, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
+            drawAnchor(context, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
             drawCoordBox(context, rect.isSelected, rect.className, rect.position.lt, rect.position.rt, rect.position.lb, rect.position.rb)
         })  
     }
     
-    function drawRect(context, isSelected: Boolean, lt: Point, rt: Point, lb: Point, rb: Point){
-        if(isSelected == false) return
-
+    function drawRect(context, lt: Point, rt: Point, lb: Point, rb: Point){
         context.fillStyle="#5668D933"
         context.strokeStyle = "#5668D9"
         context.lineJoin = 'miter'
@@ -34,8 +32,7 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         context.fill()
     }
     
-    function drawAnchor(context, isSelected: Boolean, lt: Point, rt: Point, lb: Point, rb: Point){
-        if(isSelected == false) return
+    function drawAnchor(context, lt: Point, rt: Point, lb: Point, rb: Point){
         context.strokeStyle = "#5668D9"
         context.lineJoin = 'miter'
         context.lineWidth = 1
@@ -125,6 +122,7 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
          context.fillStyle = "#fff"
         context.fillRect(rt.x * 600 - 4,rt.y * 600 + ((rb.y * 600 - rt.y * 600) / 2) - 4, 8, 8)
     }
+
     function drawCoordBox(context, isSelected: Boolean, className:string, lt: Point, rt: Point, lb: Point, rb: Point){
         if(isSelected == false) return
 

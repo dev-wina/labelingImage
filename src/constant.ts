@@ -11,6 +11,17 @@ export enum PAINT_RECT_MODE {
     RESIZE_ANCHOR = "resizeRectAnchor"
 }
 
+export enum ANCHOR {
+    TOP = "top",
+    LEFT = "left",
+    BOTTOM = "bottom",
+    RIGHT = "right",
+    LEFT_TOP = "leftTop",
+    RIGHT_TOP = "rightTop",
+    LEFT_BOTTOM = "leftBottom",
+    RIGHT_BOTTOM = "rightBottom"
+}
+
 export enum KEYBOARD{
     BACKSPACE = 8,
     ENTER = 13,
