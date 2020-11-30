@@ -173,6 +173,10 @@ function LabelingView(prop: ILabels) {
     }
 
     const checkHitRect = () => {
+        list.map((rect)=>{
+            rect.isSelected = false
+        })
+        console.log("중요중요중요",list)
         for(let i = 0 ; i < list.length ; i++){
             //rect 안에 mousePoint hit 시
             if(isHitRect(list[i])){
@@ -195,6 +199,9 @@ function LabelingView(prop: ILabels) {
         }
         //hit되지 않았을 때
         setTargetRect(tempRect)
+        list.map((rect)=>{
+            rect.isSelected = false
+        })
         setList([...list,tempRect])
         useDrawRect(canvasRef, list)
         changePaintRectMode(PAINT_RECT_MODE.CREATE)
@@ -328,19 +335,10 @@ function LabelingView(prop: ILabels) {
     }
 
     const inputClassName = () => {
-        
-        
-        if(paintRectMode === PAINT_RECT_MODE.CREATE){
-            if(!inputRef.current) return
-            setInputCtl({left: mousePos.x, top: start.y, isVisible: true})
-            inputRef.current.onkeydown = handleKeyPress
-            inputRef.current.focus();
-        }
-        else{
-            if(!canvasRef.current) return
-            canvasRef.current.onkeydown = handleKeyPress
-            canvasRef.current.focus();
-        }
+        // TODO : setInputCtl에 들어갈 left top 수정
+        setInputCtl({left: mousePos.x, top: start.y, isVisible: true})
+        inputRef.current.onkeydown = handleKeyPress
+        inputRef.current.focus();
     }
 
 
@@ -369,7 +367,6 @@ function LabelingView(prop: ILabels) {
     },[paintRectMode, mousePos, targetRect, start, imageRef, image])
 
     const handleMouseMove = useCallback((e) => {
-        
         e.preventDefault()
         e.stopPropagation()
         if(canvasRef.current){
@@ -407,14 +404,16 @@ function LabelingView(prop: ILabels) {
         if(inputRef.current && targetRect && canvasRef.current && imageRef.current){
             if (e.keyCode === KEYBOARD.ENTER) {
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-                list[list.length-1].className = inputRef.current.value
-                setList(list)
+                list.map((rect)=>{
+                    if(rect === targetRect){
+                        rect.className = inputRef.current.value
+                    }
+                })
                 useDrawRect(canvasRef, list)
                 inputRef.current.value = ""
             }
             else if(e.keyCode === KEYBOARD.BACKSPACE
                  || e.keyCode === KEYBOARD.DEL){
-                alert(targetRect)
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
                 const newList = list.filter(rect => rect !== targetRect)
                 setList(newList)
