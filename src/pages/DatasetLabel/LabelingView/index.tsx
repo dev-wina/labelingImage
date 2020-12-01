@@ -397,7 +397,7 @@ function LabelingView(prop: ILabels) {
                 const rb = list[i].position.rb
                 
                 // TODO : 각도계산
-                const degree = 0.01//Math.atan2((start.x * img_w - mousePos.x), (start.y * img_h - mousePos.y)) * 180 / Math.PI
+                const degree = 0.01
 
                 // cx, cy - rect의 중심
                 const cx = start.x
@@ -409,7 +409,7 @@ function LabelingView(prop: ILabels) {
                     lb: { x: cx + (Math.cos(degree) * (lb.x - cx) - Math.sin(degree) * (lb.y - cy)),   y: cy + (Math.sin(degree) * (lb.x - cx) + Math.cos(degree) * (lb.y - cy)) },
                     rb: { x: cx + (Math.cos(degree) * (rb.x - cx) - Math.sin(degree) * (rb.y - cy)),   y: cy + (Math.sin(degree) * (rb.x - cx) + Math.cos(degree) * (rb.y - cy)) }
                 }
-                list[i].degree = degree
+                list[i].degree = Math.atan2((start.x * img_w - mousePos.x), (start.y * img_h - mousePos.y)) * 180 / Math.PI
                 setTargetRect(list[i])
                 break
             }
