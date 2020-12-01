@@ -1,6 +1,7 @@
 import { MutableRefObject } from 'react';
 import { Label, Point } from '~modules/data';
 
+// TODO : image width, height받아서 처리하도록 수정
 export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[]){
     const canvas: HTMLCanvasElement = ref.current
     const context = canvas.getContext('2d')

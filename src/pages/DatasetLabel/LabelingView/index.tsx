@@ -50,7 +50,7 @@ function LabelingView(prop: ILabels) {
 
     useEffect(() => {
         if (data) setList(data.labels)
-    }, [data])
+    }, [data, tool])
 
     const addLabel = (label: Label) => {
         setList([...list, label])
@@ -162,13 +162,17 @@ function LabelingView(prop: ILabels) {
     }
 
     const checkHitRect = () => {
-        list.map((rect)=>{
-            rect.isSelected = false
-        })
+        if(tool === 0){
+            list.map((rect)=>{
+                rect.isSelected = false
+            })
+        }
         for(let i = 0 ; i < list.length ; i++){
             //rect 안에 mousePoint hit 시
             if(isHitRect(list[i])){
                 list[i].isSelected = true;
+                setList(list)
+                useDrawRect(canvasRef, list)
                 changePaintRectMode(PAINT_RECT_MODE.MOVE)
                 return 
             }
@@ -186,7 +190,7 @@ function LabelingView(prop: ILabels) {
             }
         }
         //hit되지 않았을 때
-        if(imageRef.current){
+        if(tool === 0 && imageRef.current){
             const img_w = imageRef.current.width
             const img_h = imageRef.current.height
             const tempRect = {
@@ -360,34 +364,41 @@ function LabelingView(prop: ILabels) {
 
 
     const handleMouseDown = useCallback((e) => {
-        console.log(list)
         setStart(mousePos)
         setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-        if(list.length === 0){
-            if(imageRef.current){
-                const img_w = imageRef.current.width
-                const img_h = imageRef.current.height
-                const tempRect = {
-                    className: "class",  
-                    position: {
-                        lt: { x: start.x / img_w, y: start.y / img_h },
-                        rt: { x: mousePos.x / img_w, y: start.y / img_h },
-                        lb: { x: start.x / img_w, y: mousePos.y / img_h },
-                        rb: { x: mousePos.x / img_w, y: mousePos.y / img_h }
-                    },
-                    width: mousePos.x / img_w - start.x / img_w,
-                    height: mousePos.y / img_h - start.y / img_h,
-                    isSelected: true
+        if(tool === 0){
+            if(list.length === 0){
+                if(imageRef.current){
+                    const img_w = imageRef.current.width
+                    const img_h = imageRef.current.height
+                    const tempRect = {
+                        className: "class",  
+                        position: {
+                            lt: { x: start.x / img_w, y: start.y / img_h },
+                            rt: { x: mousePos.x / img_w, y: start.y / img_h },
+                            lb: { x: start.x / img_w, y: mousePos.y / img_h },
+                            rb: { x: mousePos.x / img_w, y: mousePos.y / img_h }
+                        },
+                        width: mousePos.x / img_w - start.x / img_w,
+                        height: mousePos.y / img_h - start.y / img_h,
+                        isSelected: true
+                    }
+                    setTargetRect(tempRect)
+                    setList([...list,tempRect])
+                    useDrawRect(canvasRef, list)
+                    changePaintRectMode(PAINT_RECT_MODE.CREATE)
                 }
-                setTargetRect(tempRect)
-                setList([...list,tempRect])
-                useDrawRect(canvasRef, list)
-                changePaintRectMode(PAINT_RECT_MODE.CREATE)
+            }
+            else {
+                checkHitRect()
             }
         }
-        else {
+        else{ //다중선택모드
             checkHitRect()
+            window.onkeydown = handleKeyPress
+            window.focus();
         }
+        
     },[paintRectMode, mousePos, targetRect, start, imageRef])
 
 
@@ -413,7 +424,8 @@ function LabelingView(prop: ILabels) {
 
     const handleMouseUp = useCallback((e) => {
         setEnd(mousePos)
-        inputClassName()
+        if(tool === 0)
+            inputClassName()
         changePaintRectMode(PAINT_RECT_MODE.NONE)
         handleSave()
     },[mousePos, canvasRef, inputRef])
@@ -448,7 +460,7 @@ function LabelingView(prop: ILabels) {
             else if(e.keyCode === KEYBOARD.BACKSPACE
                  || e.keyCode === KEYBOARD.DEL){
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
-                const newList = list.filter(rect => rect !== targetRect)
+                const newList = list.filter(rect => !rect.isSelected)
                 modify({...data, ...{labels: newList}})
                 setList(newList)
                 useDrawRect(canvasRef, newList)
@@ -457,14 +469,16 @@ function LabelingView(prop: ILabels) {
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
 
+
     const handleSpaceKeyPress = useCallback((e) => {
         if (e.keyCode === KEYBOARD.SPACEBAR) {
-                console.log("SpaceKeyPress")
-                window.onmousemove = handleImageMove
-                window.focus();
-            }
+            alert("SPACEBAR")
+            window.onmousemove = handleImageMove
+            window.focus();
+        }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
-    },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
+    },[inputRef, inputCtl, mousePos, canvasRef, targetRect, start, list])
+
 
     const handleImageMove = useCallback((e) => {
         console.log("ImageMove")
