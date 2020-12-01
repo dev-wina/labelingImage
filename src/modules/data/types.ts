@@ -15,7 +15,8 @@ export interface Label{
     className: string
     position: Position
     width: number
-    height:number
+    height: number
+    degree: number
     isSelected: boolean
 }
 

@@ -8,7 +8,8 @@ export enum PAINT_RECT_MODE {
     CREATE = "createRect",
     MOVE = "moveRect",
     RESIZE_CORNER = "resizeRectCorner",
-    RESIZE_ANCHOR = "resizeRectAnchor"
+    RESIZE_ANCHOR = "resizeRectAnchor",
+    TILT = "tiltRect"
 }
 
 export enum ANCHOR {
@@ -19,7 +20,8 @@ export enum ANCHOR {
     LEFT_TOP = "leftTop",
     RIGHT_TOP = "rightTop",
     LEFT_BOTTOM = "leftBottom",
-    RIGHT_BOTTOM = "rightBottom"
+    RIGHT_BOTTOM = "rightBottom",
+    CIRCLE = "circle"
 }
 
 export enum KEYBOARD{

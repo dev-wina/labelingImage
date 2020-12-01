@@ -143,6 +143,24 @@ function LabelingView(prop: ILabels) {
         }
         return false
     }
+    const isHitDegreeAnchor = (rect) =>{
+        if(!imageRef.current) return
+
+        const img_w = imageRef.current.width
+        const img_h = imageRef.current.height
+        const lt = rect.position.lt
+        const rt = rect.position.rt
+
+        const centerx = (lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2));
+        const centery = ((lt.y * img_h) - 18); // TODO : 18 빼고 degree적용해야 함
+        if(Math.pow(4, 2) > (Math.pow(centerx - mousePos.x, 2) + Math.pow(centery - mousePos.y, 2))){
+            setTargetRect(rect)
+            setAnchorDirect(ANCHOR.CIRCLE)
+            return true
+        }
+        return false
+    }
+    
 
     const isHitRect = (rect) =>{
         if(!imageRef.current) return
@@ -188,6 +206,17 @@ function LabelingView(prop: ILabels) {
                 changePaintRectMode(PAINT_RECT_MODE.RESIZE_ANCHOR)
                 return 
             }
+            else if(isHitDegreeAnchor(list[i])){
+                list[i].isSelected = true;
+                const lt = list[i].position.lt
+                const rt = list[i].position.rt
+                const rb = list[i].position.rb
+                const cx = lt.x + ((rt.x - lt.x) / 2)
+                const cy = rt.y + ((rb.y - rt.y) / 2)
+                setStart({x:cx, y:cy})
+                changePaintRectMode(PAINT_RECT_MODE.TILT)
+                return 
+            }
         }
         //hit되지 않았을 때
         if(tool === 0 && imageRef.current){
@@ -203,6 +232,7 @@ function LabelingView(prop: ILabels) {
                 },
                 width: mousePos.x / img_w - start.x / img_w,
                 height: mousePos.y / img_h - start.y / img_h,
+                degree: 0,
                 isSelected: true
             }
             setTargetRect(tempRect)
@@ -226,6 +256,7 @@ function LabelingView(prop: ILabels) {
                 },
                 width: mousePos.x / img_w - start.x / img_w,
                 height: mousePos.y / img_h - start.y / img_h,
+                degree: 0,
                 isSelected: true
             }
             setTargetRect(list[list.length-1])
@@ -337,6 +368,7 @@ function LabelingView(prop: ILabels) {
     }
 
     const moveRect = () => {
+        // TODO : rect에 마우스 hit 된 지점이 그대로 고정되도록 수정
         for(let i = 0 ; i < list.length ; i++){
             if(list[i] === targetRect && imageRef.current){
                 const img_w = imageRef.current.width
@@ -347,6 +379,37 @@ function LabelingView(prop: ILabels) {
                     lb: { x: mousePos.x / img_w, y: mousePos.y / img_h + list[i].height },
                     rb: { x: mousePos.x / img_w + list[i].width, y: mousePos.y / img_h + list[i].height }
                 }
+                setTargetRect(list[i])
+                break
+            }
+        }
+        useDrawRect(canvasRef, list)
+    }
+
+    const tiltRect = () => {
+        for(let i = 0 ; i < list.length ; i++){
+            if(list[i] === targetRect && imageRef.current){
+                const img_w = imageRef.current.width
+                const img_h = imageRef.current.height
+                const lt = list[i].position.lt
+                const rt = list[i].position.rt
+                const lb = list[i].position.lb
+                const rb = list[i].position.rb
+                
+                // TODO : 각도계산
+                const degree = 0.01//Math.atan2((start.x * img_w - mousePos.x), (start.y * img_h - mousePos.y)) * 180 / Math.PI
+
+                // cx, cy - rect의 중심
+                const cx = start.x
+                const cy = start.y
+
+                list[i].position = {
+                    lt: { x: cx + (Math.cos(degree) * (lt.x - cx) - Math.sin(degree) * (lt.y - cy)),   y: cy + (Math.sin(degree) * (lt.x - cx) + Math.cos(degree) * (lt.y - cy)) },
+                    rt: { x: cx + (Math.cos(degree) * (rt.x - cx) - Math.sin(degree) * (rt.y - cy)),   y: cy + (Math.sin(degree) * (rt.x - cx) + Math.cos(degree) * (rt.y - cy)) },
+                    lb: { x: cx + (Math.cos(degree) * (lb.x - cx) - Math.sin(degree) * (lb.y - cy)),   y: cy + (Math.sin(degree) * (lb.x - cx) + Math.cos(degree) * (lb.y - cy)) },
+                    rb: { x: cx + (Math.cos(degree) * (rb.x - cx) - Math.sin(degree) * (rb.y - cy)),   y: cy + (Math.sin(degree) * (rb.x - cx) + Math.cos(degree) * (rb.y - cy)) }
+                }
+                list[i].degree = degree
                 setTargetRect(list[i])
                 break
             }
@@ -417,6 +480,9 @@ function LabelingView(prop: ILabels) {
             }
             else if(paintRectMode === PAINT_RECT_MODE.MOVE){
                 moveRect()
+            }
+            else if(paintRectMode === PAINT_RECT_MODE.TILT){
+                tiltRect()
             }
         }
     },[paintRectMode, mousePos, start, imageRef])
