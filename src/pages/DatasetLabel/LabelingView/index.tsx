@@ -56,11 +56,6 @@ function LabelingView(prop: ILabels) {
 
     const handleSave = () => {
         modify({...data, ...{labels: list}})
-        
-        // if(data){
-        //     data.labels = list
-        //     modify(data)
-        // }
     }
 
 
