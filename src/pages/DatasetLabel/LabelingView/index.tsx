@@ -388,14 +388,6 @@ function LabelingView(prop: ILabels) {
         }
     },[paintRectMode, mousePos, targetRect, start, imageRef])
 
-     const handleImageMove = useCallback((e) => {
-         if(!image) return
-            const img = new Image()
-            img.src = image
-            img.onload = () => {
-            imageRef.current?.getContext('2d')?.drawImage(img, mousePos.x, mousePos.y)
-        } 
-    },[paintRectMode, mousePos, targetRect, start, imageRef, image])
 
     const handleMouseMove = useCallback((e) => {
         e.preventDefault()
@@ -458,37 +450,55 @@ function LabelingView(prop: ILabels) {
                 modify({...data, ...{labels: newList}})
                 setList(newList)
                 useDrawRect(canvasRef, newList)
-            }
-            // TODO : 따로 뺄 것
-            else if (e.keyCode === KEYBOARD.SPACEBAR) {
-                imageRef.current.onmousemove = handleImageMove
-                imageRef.current.focus();
-            }
-            
+            } 
         }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
 
+    const handleSpaceKeyPress = useCallback((e) => {
+        if (e.keyCode === KEYBOARD.SPACEBAR) {
+                console.log("SpaceKeyPress")
+                window.onmousemove = handleImageMove
+                window.focus();
+            }
+        changePaintRectMode(PAINT_RECT_MODE.NONE)
+    },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
+
+    const handleImageMove = useCallback((e) => {
+        console.log("ImageMove")
+         if(!image) return
+            const img = new Image()
+            img.src = image
+            img.onload = () => {
+            imageRef.current?.getContext('2d')?.drawImage(img, mousePos.x, mousePos.y)
+        } 
+    },[paintRectMode, mousePos, targetRect, start, imageRef, image])
+
 
     useEffect(()=>{
-        if (canvasRef.current) {
+        if (canvasRef.current && imageRef.current) {
             canvasRef.current.addEventListener("mousedown", handleMouseDown )
             canvasRef.current.addEventListener("mousemove", handleMouseMove )
+            imageRef.current.addEventListener("mousemove", handleImageMove )
             canvasRef.current.addEventListener("mouseup", handleMouseUp )
             canvasRef.current.addEventListener("mouseleave", handleMouseLeave )
             canvasRef.current.addEventListener("keypress", handleKeyPress )
+            window.addEventListener("keypress", handleSpaceKeyPress )
         }
 
         return () => {
-            if (canvasRef.current) {
+            if (canvasRef.current && imageRef.current) {
                 canvasRef.current.removeEventListener("mousedown", handleMouseDown )
                 canvasRef.current.removeEventListener("mousemove", handleMouseMove )
+                imageRef.current.removeEventListener("mousemove", handleImageMove )
                 canvasRef.current.removeEventListener("mouseup", handleMouseUp )
-                canvasRef.current.addEventListener("mouseleave", handleMouseLeave )
-                canvasRef.current.addEventListener("keypress", handleKeyPress )
+                canvasRef.current.removeEventListener("mouseleave", handleMouseLeave )
+                canvasRef.current.removeEventListener("keypress", handleKeyPress )
+                window.removeEventListener("keypress", handleSpaceKeyPress )
             }
         }
-    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleKeyPress])
+    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleKeyPress, handleSpaceKeyPress, handleImageMove])
+
 
     useImage(imageRef, image)
     //useCreateLabel(canvasRef, imageRef, inputRef, addLabel)
