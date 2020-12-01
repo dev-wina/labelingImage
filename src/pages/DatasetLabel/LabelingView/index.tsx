@@ -13,6 +13,7 @@ import useStateWithPromise from '~hooks/useStateWithPromise';
 export interface ILabels {
     image?: string
     data?: Video
+    tool: number
 }
 
 export interface ISInput {
@@ -24,7 +25,8 @@ export interface ISInput {
 function LabelingView(prop: ILabels) {
     const {
         image,
-        data
+        data,
+        tool //mouse mode
     } = prop;
 
     const canvasRef = useRef<HTMLCanvasElement>()
@@ -479,10 +481,10 @@ function LabelingView(prop: ILabels) {
         if (canvasRef.current && imageRef.current) {
             canvasRef.current.addEventListener("mousedown", handleMouseDown )
             canvasRef.current.addEventListener("mousemove", handleMouseMove )
-            imageRef.current.addEventListener("mousemove", handleImageMove )
             canvasRef.current.addEventListener("mouseup", handleMouseUp )
             canvasRef.current.addEventListener("mouseleave", handleMouseLeave )
             canvasRef.current.addEventListener("keypress", handleKeyPress )
+
             window.addEventListener("keypress", handleSpaceKeyPress )
         }
 
@@ -490,14 +492,14 @@ function LabelingView(prop: ILabels) {
             if (canvasRef.current && imageRef.current) {
                 canvasRef.current.removeEventListener("mousedown", handleMouseDown )
                 canvasRef.current.removeEventListener("mousemove", handleMouseMove )
-                imageRef.current.removeEventListener("mousemove", handleImageMove )
                 canvasRef.current.removeEventListener("mouseup", handleMouseUp )
                 canvasRef.current.removeEventListener("mouseleave", handleMouseLeave )
                 canvasRef.current.removeEventListener("keypress", handleKeyPress )
+                
                 window.removeEventListener("keypress", handleSpaceKeyPress )
             }
         }
-    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleKeyPress, handleSpaceKeyPress, handleImageMove])
+    },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleKeyPress, handleSpaceKeyPress])
 
 
     useImage(imageRef, image)
