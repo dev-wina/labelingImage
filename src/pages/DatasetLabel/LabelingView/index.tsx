@@ -50,6 +50,8 @@ function LabelingView(prop: ILabels) {
 
     useEffect(() => {
         if (data) setList(data.labels)
+        useDrawRect(canvasRef, list)
+        
     }, [data, tool])
 
     const addLabel = (label: Label) => {
@@ -397,11 +399,16 @@ function LabelingView(prop: ILabels) {
                 const rb = list[i].position.rb
                 
                 // TODO : 각도계산
-                const degree = 0.01
-
                 // cx, cy - rect의 중심
                 const cx = start.x
                 const cy = start.y
+                let degree: number = 0
+                if(cx < mousePos.x){
+                    degree = 0.01
+                }
+                else{
+                    degree = - 0.01
+                }
 
                 list[i].position = {
                     lt: { x: cx + (Math.cos(degree) * (lt.x - cx) - Math.sin(degree) * (lt.y - cy)),   y: cy + (Math.sin(degree) * (lt.x - cx) + Math.cos(degree) * (lt.y - cy)) },

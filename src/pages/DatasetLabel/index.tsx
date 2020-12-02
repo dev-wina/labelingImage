@@ -23,7 +23,7 @@ function DatasetLabel(props: RouteComponentProps<MatchParams>) {
             <SHeader>Dataset Label</SHeader>
             <SFragment>
                 <Tools tool={tool} setTool={setTool} />
-                <LabelList labels={videoData?.labels}/>
+                <LabelList data={videoData} labels={videoData?.labels} tool={tool}/>
                 <LabelingView image={videoData?.url} data={videoData} tool={tool}/>
             </SFragment>
         </SDatasetLabel>

@@ -1,21 +1,44 @@
-import React from "react"
-import { Label } from '~modules/data/types'
+import React, { useEffect } from "react"
+import useData from '~hooks/useData'
+import { Label, Video } from '~modules/data/types'
+import { withProps } from '~styles/themed-components'
 import { styled } from "~styles/themes"
 
 interface ILabel
 {
+    data?: Video
     labels?: Label[]
+    tool: number
 }
 
 function LabelList(prop: ILabel) {
-    const { labels } = prop
+    const { 
+        data,
+        labels,
+        tool
+    } = prop
+    
+    const { modify } = useData()
+
+    const handleClickItem = (i) => {
+        if(!labels) return
+        if(tool === 0){
+            labels.map((label)=>{
+                label.isSelected = false
+            })
+            labels[i].isSelected = !labels[i].isSelected
+        } else{
+            labels[i].isSelected = !labels[i].isSelected
+        }
+        modify({...data, ...{labels: labels}})
+    }
 
     return (
         <SListFrame>
             <SFoldButton>labels</SFoldButton>    
             <SLabelList>
-                { labels?.map((label: Label, i: number) =>  
-                    <SListItem key={`${label.className} + ${i}`}>
+                { labels?.map((label: Label, i: number) => 
+                    <SListItem {...label} key={`${label.className} + ${i}`} onClick={()=> handleClickItem(i)}>
                         <SLabelName>{label.className}</SLabelName>
                         <div>{`lt: (${(label.position.lt.x).toFixed(2)}, ${(label.position.lt.y).toFixed(2)}) 
                             rt: (${(label.position.rt.x).toFixed(2)}, ${(label.position.rt.y).toFixed(2)})`}</div>
@@ -50,10 +73,11 @@ const SLabelList = styled.ul`
     height: 100%;
 `
 
-const SListItem = styled.li`
+const SListItem = withProps(styled.li)`
     padding: 21px 24px;
     font-size: 12px;
     border-bottom: thin solid #edeff3;
+    background-color: ${props => props.isSelected? "#EBEDF2" : "#fafafa" }
 `
 
 const SLabelName = styled.h1`
