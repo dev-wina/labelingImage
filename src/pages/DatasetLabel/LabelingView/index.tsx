@@ -22,6 +22,11 @@ export interface ISInput {
     isVisible: boolean
 }
 
+export interface ISImagePos {
+    top: number
+    left: number
+}
+
 function LabelingView(prop: ILabels) {
     const {
         image,
@@ -37,6 +42,8 @@ function LabelingView(prop: ILabels) {
 
     const [ isInputVisible, setInputVisibility ] = useState<boolean>(true)
     const [ inputCtl, setInputCtl ]  = useState<ISInput>({ left: 100, top: 100, isVisible: false })
+    const [ imagePos, setImagePos ]  = useState<ISImagePos>({ top: 0, left: 0 })
+    // TODO : spacebar누른상태이면 이미지 움직일 수 있게 수정
 
     const mousePos = useMousePoint(canvasRef).point
     const [ start, setStart ] = useStateWithPromise({x: 0, y: 0})
@@ -549,22 +556,34 @@ function LabelingView(prop: ILabels) {
 
 
     const handleSpaceKeyPress = useCallback((e) => {
-        if (e.keyCode === KEYBOARD.SPACEBAR) {
-            window.onmousemove = handleImageMove
+        if(paintRectMode === PAINT_RECT_MODE.IMAGE_MOVE)  return
+         if (e.keyCode === KEYBOARD.SPACEBAR) {
+            setInputCtl({left: mousePos.x, top: start.y, isVisible: false })
+            window.addEventListener("mousemove", handleImageMove )
+            window.addEventListener("keyup", handleSpaceKeyUp )
+            //window.onmousemove = handleImageMove
             window.focus();
+        }
+        changePaintRectMode(PAINT_RECT_MODE.IMAGE_MOVE )
+    },[paintRectMode,mousePos])
+
+
+    const handleSpaceKeyUp = useCallback((e) => {
+        if (e.keyCode === KEYBOARD.SPACEBAR) {
+            window.removeEventListener("mousemove", handleImageMove )
         }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect, start, list])
+    
+
+    const handleScroll = useCallback((e) => {
+
+    },[canvasRef])
 
 
     const handleImageMove = useCallback((e) => {
-         if(!image) return
-            const img = new Image()
-            img.src = image
-            img.onload = () => {
-            imageRef.current?.getContext('2d')?.drawImage(img, mousePos.x, mousePos.y)
-        } 
-    },[paintRectMode, mousePos, targetRect, start, imageRef, image])
+        setImagePos({top : e.clientY - e.target.getBoundingClientRect().top , left: e.clientX -e.target.getBoundingClientRect().left })
+    },[paintRectMode, mousePos])
 
 
     useEffect(()=>{
@@ -576,6 +595,8 @@ function LabelingView(prop: ILabels) {
             canvasRef.current.addEventListener("keypress", handleKeyPress )
 
             window.addEventListener("keypress", handleSpaceKeyPress )
+            window.addEventListener("keypress", handleSpaceKeyUp )
+            window.addEventListener("scroll", handleScroll )
         }
 
         return () => {
@@ -587,6 +608,8 @@ function LabelingView(prop: ILabels) {
                 canvasRef.current.removeEventListener("keypress", handleKeyPress )
                 
                 window.removeEventListener("keypress", handleSpaceKeyPress )
+                window.removeEventListener("keypress", handleSpaceKeyUp )
+                window.removeEventListener("scroll", handleScroll )
             }
         }
     },[handleMouseDown, handleMouseMove, handleMouseUp, handleMouseLeave, handleKeyPress, handleSpaceKeyPress])
@@ -597,7 +620,7 @@ function LabelingView(prop: ILabels) {
 
     return(
         <SLabelingView>
-            <SImageWapper>
+            <SImageWapper {...imagePos}>
                 <canvas width="970px" height="594px" style={{position:"absolute"}}
                 ref={canvasRef}/>
                 <img src={image} ref={imageRef}/>
@@ -622,9 +645,11 @@ const SLabelingView = styled.div`
     height:100%;
 `
 
-const SImageWapper = styled.div`
+const SImageWapper = withProps(styled.div)`
     position: relative;
     display: grid;
+    top: ${props => props.top}px;
+    left: ${props => props.left}px;
     width:100%;
     height:100%;
 `

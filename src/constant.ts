@@ -9,7 +9,8 @@ export enum PAINT_RECT_MODE {
     MOVE = "moveRect",
     RESIZE_CORNER = "resizeRectCorner",
     RESIZE_ANCHOR = "resizeRectAnchor",
-    TILT = "tiltRect"
+    TILT = "tiltRect",
+    IMAGE_MOVE = "moveImage"
 }
 
 export enum ANCHOR {

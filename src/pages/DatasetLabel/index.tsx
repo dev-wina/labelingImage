@@ -35,6 +35,7 @@ export default DatasetLabel
 const SDatasetLabel = styled.div`
     display: flex;
     flex-direction: column;
+    position: fixed;
 `
 const SHeader = styled.div`
     border-bottom: thin solid #edeff3;
