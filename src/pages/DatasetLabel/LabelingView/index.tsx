@@ -622,7 +622,7 @@ function LabelingView(prop: ILabels) {
     return(
         <SLabelingView>
             <SImageWapper {...imagePos}>
-                <canvas width="970px" height="594px" style={{position:"absolute", width:"100%", height:"100%"}}
+                <canvas width={window.innerWidth} height={window.innerHeight} style={{position:"absolute"}}
                 ref={canvasRef}/>
                 <img src={image} ref={imageRef} style={{}}/>
             </SImageWapper>
