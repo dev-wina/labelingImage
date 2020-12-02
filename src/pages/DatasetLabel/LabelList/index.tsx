@@ -54,12 +54,17 @@ function LabelList(prop: ILabel) {
 export default LabelList
 
 const SListFrame = styled.div`
+    position: relative;
+    display: flex;
+    flex-direction: column;
     background-color:#fafafa;
     border: thin solid #edeff3;
     width: 278px;
+    height: 100%;
 `
 
 const SFoldButton = styled.div`
+    position: relative;
     border-bottom: 2pt solid #edeff3;
     background-color:#fafafa;
     height: 20pt;
@@ -69,8 +74,9 @@ const SFoldButton = styled.div`
 `
 
 const SLabelList = styled.ul`
-    width:100%;
+    position: relative;
     height: 100%;
+    overflow-y:scroll;
 `
 
 const SListItem = withProps(styled.li)`

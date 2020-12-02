@@ -42,12 +42,12 @@ function LabelingView(prop: ILabels) {
 
     const [ isInputVisible, setInputVisibility ] = useState<boolean>(true)
     const [ inputCtl, setInputCtl ]  = useState<ISInput>({ left: 100, top: 100, isVisible: false })
-    const [ imagePos, setImagePos ]  = useState<ISImagePos>({ top: 0, left: 0 })
+    const [ imagePos, setImagePos ]  = useState<ISImagePos>({ top: NaN, left: NaN })
     // TODO : spacebar누른상태이면 이미지 움직일 수 있게 수정
 
     const mousePos = useMousePoint(canvasRef).point
-    const [ start, setStart ] = useStateWithPromise({x: 0, y: 0})
-    const [ end, setEnd ] = useStateWithPromise({x: 0, y: 0})
+    const [ start, setStart ] = useStateWithPromise({x: NaN, y: NaN})
+    const [ end, setEnd ] = useStateWithPromise({x: NaN, y: NaN})
 
     const [ targetRect, setTargetRect ] = useStateWithPromise(null)
     const [ list, setList ] = useStateWithPromise([]) // TODO : labelList에 넘겨줘야함
@@ -509,6 +509,7 @@ function LabelingView(prop: ILabels) {
 
     const handleMouseUp = useCallback((e) => {
         setEnd(mousePos)
+        changeTargetRect(null)
         if(tool === 0)
             inputClassName()
         changePaintRectMode(PAINT_RECT_MODE.NONE)
@@ -524,7 +525,7 @@ function LabelingView(prop: ILabels) {
 
 
     const handleKeyPress = useCallback((e) => {
-        if(inputRef.current && targetRect && canvasRef.current && imageRef.current){
+        if(inputRef.current && canvasRef.current && imageRef.current){
             if (e.keyCode === KEYBOARD.ENTER) {
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
                 
@@ -544,6 +545,7 @@ function LabelingView(prop: ILabels) {
             }
             else if(e.keyCode === KEYBOARD.BACKSPACE
                  || e.keyCode === KEYBOARD.DEL){
+                     
                 setInputCtl({left: mousePos.x, top: start.y, isVisible: false})
                 const newList = list.filter(rect => !rect.isSelected)
                 modify({...data, ...{labels: newList}})
@@ -558,21 +560,20 @@ function LabelingView(prop: ILabels) {
     const handleSpaceKeyPress = useCallback((e) => {
         if(paintRectMode === PAINT_RECT_MODE.IMAGE_MOVE)  return
          if (e.keyCode === KEYBOARD.SPACEBAR) {
+            changePaintRectMode(PAINT_RECT_MODE.IMAGE_MOVE )
             setInputCtl({left: mousePos.x, top: start.y, isVisible: false })
             window.addEventListener("mousemove", handleImageMove )
             window.addEventListener("keyup", handleSpaceKeyUp )
-            //window.onmousemove = handleImageMove
             window.focus();
         }
-        changePaintRectMode(PAINT_RECT_MODE.IMAGE_MOVE )
     },[paintRectMode,mousePos])
 
 
     const handleSpaceKeyUp = useCallback((e) => {
         if (e.keyCode === KEYBOARD.SPACEBAR) {
+            changePaintRectMode(PAINT_RECT_MODE.NONE)
             window.removeEventListener("mousemove", handleImageMove )
         }
-        changePaintRectMode(PAINT_RECT_MODE.NONE)
     },[inputRef, inputCtl, mousePos, canvasRef, targetRect, start, list])
     
 
@@ -621,9 +622,9 @@ function LabelingView(prop: ILabels) {
     return(
         <SLabelingView>
             <SImageWapper {...imagePos}>
-                <canvas width="970px" height="594px" style={{position:"absolute"}}
+                <canvas width="970px" height="594px" style={{position:"absolute", width:"100%", height:"100%"}}
                 ref={canvasRef}/>
-                <img src={image} ref={imageRef}/>
+                <img src={image} ref={imageRef} style={{}}/>
             </SImageWapper>
             {
                 isInputVisible?

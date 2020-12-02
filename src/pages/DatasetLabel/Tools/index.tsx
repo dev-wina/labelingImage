@@ -38,11 +38,11 @@ function Tools(props: ITools) {
 export default Tools 
 
 const STools = styled.div`
-    width: 32pt;
     border: thin solid #edeff3;
     background-color: #fafafa;
     flex-direction: column;
     display: flex;
+    flex-direction: column;
     justify-content: flex-start;
     height:100%;
 `

@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from 'react'
 import { Point } from '~modules/data'
 
 export default function useMousePoint(ref: MutableRefObject<any>){
-    const [ point, setPoint ] = useState<Point>({x: 0, y: 0})
+    const [ point, setPoint ] = useState<Point>({x: NaN, y: NaN})
 
     useEffect(()=>{
         const handleMouseMove = e => {

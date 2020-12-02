@@ -22,7 +22,8 @@ export default App;
 
 
 const SApp = styled.div`
-  position: absolute;
+  display: grid;
+  position: fixed;
   width: 100%;
   height: 100%;
 `

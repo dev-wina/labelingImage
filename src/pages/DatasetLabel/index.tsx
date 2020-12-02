@@ -33,20 +33,25 @@ function DatasetLabel(props: RouteComponentProps<MatchParams>) {
 export default DatasetLabel
 
 const SDatasetLabel = styled.div`
-    display: flex;
-    flex-direction: column;
-    position: fixed;
+    //display: flex;
+    //flex-direction: column;
+    position: relative;
+    //flex: 1;
+    width: 100%;
+    height: 100%;
 `
 const SHeader = styled.div`
     border-bottom: thin solid #edeff3;
     color:black;
     padding:10pt 32pt;
     font-size:20pt;
+    height: 7%;
     background-color:#fafafa;
 `
 
 const SFragment = styled.div`
+    position: relative;
     display: flex;
-    flex: 1;
-    height: 100%;
+    height: 93%;
+    width: 100%;
 `
