@@ -10,8 +10,7 @@ import { Video } from '~modules/data'
 
 function DatasetLabel(props: RouteComponentProps<MatchParams>) {
     const { 
-        match, 
-        history 
+        match
     } = props
     
     const [ tool, setTool ] = useState(0)
@@ -36,8 +35,6 @@ export default DatasetLabel
 const SDatasetLabel = styled.div`
     display: flex;
     flex-direction: column;
-    width:100%;
-    height:100%;
 `
 const SHeader = styled.div`
     border-bottom: thin solid #edeff3;

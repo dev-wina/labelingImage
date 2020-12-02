@@ -43,17 +43,25 @@ export default function useDrawRect(ref: MutableRefObject<any>, rectList: Label[
         context.lineWidth = 1
 
         context.beginPath()
-        context.moveTo(lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2) , lt.y * 600 + (((rt.y * 600) - (lt.y * 600)) / 2) - 4)
-        context.lineTo(lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2) , lt.y * 600 + (((rt.y * 600) - (lt.y * 600)) / 2) - 14)
+        let cx = (lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2));
+        let cy = (lt.y * 600 + (((rt.y * 600) - (lt.y * 600)) / 2));
+
+        //선분의 길이
+        let l = Math.sqrt(Math.pow((rt.x * 600 - cx),2) + Math.pow((rt.y * 600 - cy),2))
+        console.log("length",l)
+
+        let anchorX = cx + (rt.y * 600 - cy) / l * 18
+        let anchorY = cy - (rt.x * 600 - cx) / l * 18
+
+        context.moveTo(cx,cy)
+        context.lineTo(anchorX,anchorY)
         context.closePath()
         context.stroke()
         
         context.beginPath()
         let r = 4;
-        // TODO : 수정
-        let centerx = (lt.x * 600 + (((rt.x * 600) - (lt.x * 600)) / 2));
-        let centery = (lt.y * 600 + (((rt.y * 600) - (lt.y * 600)) / 2) - 18);
-        context.arc(centerx, centery, r, 0, 2 * Math.PI);
+
+        context.arc(anchorX,anchorY, r, 0, 2 * Math.PI);
         context.closePath()
         context.fill()
         context.stroke()
