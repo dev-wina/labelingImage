@@ -51,6 +51,8 @@ function LabelingView(prop: ILabels) {
     useEffect(() => {
         if (data) setList(data.labels)
         useDrawRect(canvasRef, list)
+        window.onkeydown = handleKeyPress
+        window.focus();
         
     }, [data, tool])
 
@@ -67,6 +69,10 @@ function LabelingView(prop: ILabels) {
         await setPaintRectMode(param) //Promise.all([setPaintRectMode(param)])
     }
 
+    const changeTargetRect = async (rect) => {
+        await setTargetRect(rect) //Promise.all([setPaintRectMode(param)])
+    }
+
     const isHitRectCorner = (rect) =>{
         if(!imageRef.current) return
 
@@ -79,25 +85,25 @@ function LabelingView(prop: ILabels) {
 
         if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x * img_w + 4
         && lt.y * img_h - 4 < mousePos.y && mousePos.y < lt.y * img_h + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.LEFT_TOP)
             return true
         }
         else if(rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4
         && rt.y * img_h - 4 < mousePos.y && mousePos.y < rt.y * img_h + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.RIGHT_TOP)
             return true
         }
         else if(lb.x * img_w - 4 < mousePos.x && mousePos.x < lb.x * img_w + 4
         && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.LEFT_BOTTOM)
             return true
         }
         else if(rb.x * img_w - 4 < mousePos.x && mousePos.x < rb.x * img_w + 4
         && rb.y * img_h - 4 < mousePos.y && mousePos.y < rb.y * img_h + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.RIGHT_BOTTOM)
             return true
         }
@@ -118,28 +124,28 @@ function LabelingView(prop: ILabels) {
         if(lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) - 4 < mousePos.x 
         && mousePos.x < lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2) + 4
         &&(lt.y * img_h) - 4 < mousePos.y && mousePos.y < (lt.y * img_h) + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.TOP)
             return true
         }
         else if(lt.x * img_w - 4 < mousePos.x && mousePos.x < lt.x * img_w + 4
         && lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) - 4 < mousePos.y 
         && mousePos.y < lt.y * img_h + ((lb.y * img_h - lt.y * img_h) / 2) + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.LEFT)
             return true
         }
         else if(lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) - 4 < mousePos.x 
         && mousePos.x < lb.x * img_w + ((rb.x * img_w - lb.x * img_w) / 2) + 4
         && lb.y * img_h - 4 < mousePos.y && mousePos.y < lb.y * img_h + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.BOTTOM)
             return true
         }
         else if(rt.x * img_w - 4 < mousePos.x && mousePos.x < rt.x * img_w + 4
         && rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) - 4 < mousePos.y 
         && mousePos.y < rt.y * img_h + ((rb.y * img_h - rt.y * img_h) / 2) + 4){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.RIGHT)
             return true
         }
@@ -156,7 +162,7 @@ function LabelingView(prop: ILabels) {
         const centerx = (lt.x * img_w + (((rt.x * img_w) - (lt.x * img_w)) / 2));
         const centery = ((lt.y * img_h) - 18); // TODO : 18 빼고 degree적용해야 함
         if(Math.pow(4, 2) > (Math.pow(centerx - mousePos.x, 2) + Math.pow(centery - mousePos.y, 2))){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             setAnchorDirect(ANCHOR.CIRCLE)
             return true
         }
@@ -175,7 +181,7 @@ function LabelingView(prop: ILabels) {
 
         if(lt.x * img_w + 4 < mousePos.x && mousePos.x < rt.x * img_w - 4
         && lt.y * img_h + 4 < mousePos.y && mousePos.y < lb.y * img_h - 4 ){
-            setTargetRect(rect)
+            changeTargetRect(rect)
             return true
         }
         return false
@@ -237,7 +243,7 @@ function LabelingView(prop: ILabels) {
                 degree: 0,
                 isSelected: true
             }
-            setTargetRect(tempRect)
+            changeTargetRect(tempRect)
             setList([...list,tempRect])
             useDrawRect(canvasRef, list)
             changePaintRectMode(PAINT_RECT_MODE.CREATE)
@@ -261,7 +267,7 @@ function LabelingView(prop: ILabels) {
                 degree: 0,
                 isSelected: true
             }
-            setTargetRect(list[list.length-1])
+            changeTargetRect(list[list.length-1])
             useDrawRect(canvasRef, list)
         }
     }
@@ -310,7 +316,7 @@ function LabelingView(prop: ILabels) {
 
                 list[i].width = rt.x - lt.x 
                 list[i].height = rt.y - lt.y
-                setTargetRect(list[i])
+                changeTargetRect(list[i])
                 break
             }
         }
@@ -362,7 +368,7 @@ function LabelingView(prop: ILabels) {
                     }
                     list[i].width = rt.x - lt.x 
                 }
-                setTargetRect(list[i])
+                changeTargetRect(list[i])
                 break
             }
         }
@@ -381,7 +387,7 @@ function LabelingView(prop: ILabels) {
                     lb: { x: mousePos.x / img_w, y: mousePos.y / img_h + list[i].height },
                     rb: { x: mousePos.x / img_w + list[i].width, y: mousePos.y / img_h + list[i].height }
                 }
-                setTargetRect(list[i])
+                changeTargetRect(list[i])
                 break
             }
         }
@@ -417,7 +423,7 @@ function LabelingView(prop: ILabels) {
                     rb: { x: cx + (Math.cos(degree) * (rb.x - cx) - Math.sin(degree) * (rb.y - cy)),   y: cy + (Math.sin(degree) * (rb.x - cx) + Math.cos(degree) * (rb.y - cy)) }
                 }
                 list[i].degree = Math.atan2((start.x * img_w - mousePos.x), (start.y * img_h - mousePos.y)) * 180 / Math.PI
-                setTargetRect(list[i])
+                changeTargetRect(list[i])
                 break
             }
         }
@@ -427,7 +433,6 @@ function LabelingView(prop: ILabels) {
     const inputClassName = () => {
         // TODO : setInputCtl에 들어갈 left top 수정
         setInputCtl({left: mousePos.x, top: start.y, isVisible: true})
-        inputRef.current.onkeydown = handleKeyPress
         inputRef.current.focus();
     }
 
@@ -453,7 +458,7 @@ function LabelingView(prop: ILabels) {
                         height: mousePos.y / img_h - start.y / img_h,
                         isSelected: true
                     }
-                    setTargetRect(tempRect)
+                    changeTargetRect(tempRect)
                     setList([...list,tempRect])
                     useDrawRect(canvasRef, list)
                     changePaintRectMode(PAINT_RECT_MODE.CREATE)
@@ -540,12 +545,11 @@ function LabelingView(prop: ILabels) {
             } 
         }
         changePaintRectMode(PAINT_RECT_MODE.NONE)
-    },[inputRef, inputCtl, mousePos, canvasRef, targetRect])
+    },[inputRef, inputCtl, mousePos, canvasRef, targetRect, list])
 
 
     const handleSpaceKeyPress = useCallback((e) => {
         if (e.keyCode === KEYBOARD.SPACEBAR) {
-            alert("SPACEBAR")
             window.onmousemove = handleImageMove
             window.focus();
         }
@@ -554,7 +558,6 @@ function LabelingView(prop: ILabels) {
 
 
     const handleImageMove = useCallback((e) => {
-        console.log("ImageMove")
          if(!image) return
             const img = new Image()
             img.src = image
